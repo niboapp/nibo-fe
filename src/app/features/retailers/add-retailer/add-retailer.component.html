@@ -1,0 +1,71 @@
+<app-page-header title="Add Retailers" subtitle="Search for a chain or add manually" [showBack]="true" (back)="goBack()">
+  <p-button label="Import" icon="pi pi-download" [outlined]="true" />
+</app-page-header>
+
+<div class="card p-6 mb-6">
+  <h2 class="text-[15px] font-bold m-0">Search Retailer Chain</h2>
+  <p class="section-sub">Type a retailer name (e.g. "Jendol Supermarket") and filter by state to find all branches</p>
+  <div class="flex gap-3">
+    <p-iconfield class="flex-1">
+      <p-inputicon class="pi pi-search" />
+      <input pInputText type="text" placeholder="Search retailer name..." [(ngModel)]="searchTerm" class="w-full" />
+    </p-iconfield>
+    <p-select [options]="stateOptions" [(ngModel)]="stateFilter" styleClass="w-40" />
+    <p-button label="Search" icon="pi pi-search" (onClick)="searchChains()" />
+  </div>
+
+  <div class="mt-5" *ngIf="hasSearched">
+    <div class="flex justify-between items-center mb-3 text-[13px] font-semibold">
+      <span>
+        {{ searchResults.length }} Searches Found
+        <a *ngIf="searchResults.length" href="javascript:void(0)" class="text-brand font-medium ml-2 no-underline">{{ selectedResultIds.size }} selected</a>
+      </span>
+      <a href="javascript:void(0)" class="text-brand text-[13px] no-underline" (click)="toggleSelectAll()">{{ allSelected ? 'Deselect all' : 'Select all' }}</a>
+    </div>
+    <div class="border border-line rounded-xl max-h-[280px] overflow-y-auto" *ngIf="searchResults.length; else noResults">
+      <label *ngFor="let result of searchResults"
+             class="flex items-center gap-3 px-4 py-3.5 border-b border-line last:border-b-0 cursor-pointer">
+        <p-checkbox [ngModel]="isResultSelected(result.id)" [ngModelOptions]="{standalone: true}" (ngModelChange)="toggleResult(result.id)" [binary]="true" />
+        <div class="flex-1 flex flex-col">
+          <strong class="text-sm">{{ result.name }}</strong>
+          <span class="text-xs text-ink-2">{{ result.address }}</span>
+        </div>
+        <p-tag [value]="result.state" styleClass="bg-brand-light text-brand" />
+      </label>
+    </div>
+    <ng-template #noResults>
+      <p class="empty-state">No matching retailer chains found</p>
+    </ng-template>
+  </div>
+</div>
+
+<div class="card p-6 mb-6">
+  <h2 class="text-[15px] font-bold m-0">Or Add Manually</h2>
+  <p class="section-sub">Add retailers not found in search — like local stores near you</p>
+
+  <form [formGroup]="manualForm">
+    <div class="flex flex-col gap-4 mb-4" formArrayName="rows">
+      <div class="grid grid-cols-[1fr_1fr_1fr_auto] gap-5 items-end" *ngFor="let row of rows.controls; let i = index" [formGroupName]="i">
+        <div>
+          <label class="field-label" *ngIf="i === 0">Name</label>
+          <input pInputText type="text" placeholder="Retailer name" formControlName="name" class="w-full" />
+        </div>
+        <div>
+          <label class="field-label" *ngIf="i === 0">Location</label>
+          <input pInputText type="text" placeholder="Address" formControlName="location" class="w-full" />
+        </div>
+        <div>
+          <label class="field-label" *ngIf="i === 0">Phone Number</label>
+          <input pInputText type="text" placeholder="Phone Number" formControlName="phoneNumber" class="w-full" />
+        </div>
+        <p-button *ngIf="rows.length > 1" icon="pi pi-times" [text]="true" severity="secondary" [rounded]="true" (onClick)="removeRow(i)" />
+      </div>
+    </div>
+
+    <p-button label="Add another row" icon="pi pi-plus-circle" [text]="true" (onClick)="addRow()" />
+  </form>
+</div>
+
+<div class="flex justify-end mb-6">
+  <p-button label="Save Retailers" icon="pi pi-check" (onClick)="saveRetailers()" />
+</div>

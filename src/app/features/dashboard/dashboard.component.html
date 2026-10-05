@@ -1,0 +1,128 @@
+<app-page-header title="Overview" subtitle="Demand & distribution intelligence">
+  <p-select [options]="dateRangeOptions" [(ngModel)]="dateRange" styleClass="w-36" />
+  <p-select [options]="stateOptions" [(ngModel)]="stateFilter" styleClass="w-32" />
+  <p-select [options]="lgaOptions" [(ngModel)]="lgaFilter" styleClass="w-24" />
+  <p-button label="Export" icon="pi pi-download" (onClick)="exportData()" />
+</app-page-header>
+
+<div class="flex gap-4 mb-6">
+  <app-stat-card *ngFor="let metric of stats" [metric]="metric" />
+  <p *ngIf="!stats.length" class="empty-state w-full">No metrics yet</p>
+</div>
+
+<div class="card p-6 mb-6">
+  <h2 class="text-[15px] font-bold m-0">Geographic Demand</h2>
+  <p class="section-sub">State-level visit activity</p>
+  <app-geo-demand
+    [stateVisits]="stateVisits"
+    [lgaVisits]="lgaVisits"
+    [drilldownState]="drilldownState"
+    (selectState)="onSelectState($event)"
+    (clearState)="onClearDrilldown()"
+  />
+</div>
+
+<div class="grid grid-cols-2 gap-6 mb-6">
+  <div class="card p-6">
+    <h2 class="text-[15px] font-bold m-0">Total Visits Over Time</h2>
+    <p class="section-sub">Interest → Action relationship</p>
+    <app-visits-chart [data]="visitTrend" />
+  </div>
+
+  <div class="card p-6">
+    <h2 class="text-[15px] font-bold m-0">Distribution Gap Analysis</h2>
+    <p class="section-sub">High demand + low retailers = expansion opportunity</p>
+    <p-table [value]="demandGap" styleClass="p-datatable-sm">
+      <ng-template pTemplate="header">
+        <tr><th>State</th><th>Visits</th><th>Retailers</th><th>Demand/Retailer</th></tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-row>
+        <tr>
+          <td>{{ row.state }}</td>
+          <td>{{ row.visits }}</td>
+          <td>{{ row.retailers }}</td>
+          <td>{{ row.demandPerRetailer }}</td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr><td colspan="4" class="empty-state">No data yet</td></tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+
+<div class="card p-6 mb-6">
+  <div class="flex justify-between items-start">
+    <div>
+      <h2 class="text-[15px] font-bold m-0">Product Performance</h2>
+      <p class="section-sub">SKU-level demand intelligence</p>
+    </div>
+    <a class="text-brand text-[13px] font-medium no-underline" href="javascript:void(0)">View All</a>
+  </div>
+  <div class="flex gap-4">
+    <div class="flex-1 border border-line rounded-xl p-4" *ngFor="let p of productPerformance">
+      <div class="w-8 h-8 rounded-lg bg-brand-light mb-3"></div>
+      <h3 class="text-sm font-medium mb-2.5">{{ p.name }}</h3>
+      <div class="flex justify-between text-xs text-ink-2 py-1"><span>Total Visits</span><span class="text-ink font-medium">{{ p.totalVisits }}</span></div>
+      <div class="flex justify-between text-xs text-ink-2 py-1"><span>Coverage</span><span class="text-ink font-medium">{{ p.coveragePercent }}%</span></div>
+      <div class="flex justify-between text-xs text-ink-2 py-1"><span>Growth</span><span class="text-success font-medium">+{{ p.growthPercent }}%</span></div>
+      <div class="flex justify-between text-xs text-ink-2 py-1"><span>Product Views</span><span class="text-ink font-medium">{{ p.productViews }}</span></div>
+    </div>
+    <p *ngIf="!productPerformance.length" class="empty-state w-full">No products yet</p>
+  </div>
+</div>
+
+<div class="grid grid-cols-2 gap-6 mb-6">
+  <div class="card p-6">
+    <h2 class="text-[15px] font-bold m-0">Traffic Source Breakdown</h2>
+    <p class="section-sub">Where demand originates</p>
+    <app-donut-chart [slices]="trafficSources" />
+  </div>
+
+  <div class="card p-6">
+    <h2 class="text-[15px] font-bold m-0">Traffic Performance</h2>
+    <p class="section-sub">Which channel drives purchase intent</p>
+    <p-table [value]="trafficPerformance" styleClass="p-datatable-sm">
+      <ng-template pTemplate="header">
+        <tr><th>Source</th><th>Searches</th><th>Clicks</th><th>Click Rate</th></tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-row>
+        <tr>
+          <td>{{ row.source }}</td>
+          <td>{{ row.searches }}</td>
+          <td>{{ row.clicks }}</td>
+          <td>{{ row.clickRate }}%</td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr><td colspan="4" class="empty-state">No data yet</td></tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+
+<div class="card p-6 mb-6">
+  <h2 class="text-[15px] font-bold m-0">Retailer Discovery</h2>
+  <p class="section-sub">Partner performance & regional strength</p>
+  <p-table [value]="retailerDiscovery" styleClass="p-datatable-sm">
+    <ng-template pTemplate="header">
+      <tr><th>Retailer</th><th>Location</th><th>Clicks</th><th>Share of Demand</th></tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-row>
+      <tr>
+        <td>{{ row.retailer }}</td>
+        <td>{{ row.location }}</td>
+        <td>{{ row.clicks }}</td>
+        <td>
+          <div class="flex items-center gap-3">
+            <p-progressbar [value]="row.shareOfDemandPercent" [showValue]="false" [style]="{ height: '6px', width: '100px' }" />
+            <span class="text-xs text-ink-2">{{ row.shareOfDemandPercent }}%</span>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr><td colspan="4" class="empty-state">No data yet</td></tr>
+    </ng-template>
+  </p-table>
+</div>

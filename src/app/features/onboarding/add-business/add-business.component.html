@@ -1,0 +1,76 @@
+<div class="min-h-screen bg-canvas flex justify-center px-6 py-10">
+  <div class="bg-surface rounded-2xl px-10 py-8 w-full max-w-[1100px] h-fit">
+    <div class="flex items-start gap-4 mb-8">
+      <button type="button" (click)="cancel()" class="bg-transparent border-0 text-base cursor-pointer mt-0.5 p-0">
+        <i class="pi pi-arrow-left"></i>
+      </button>
+      <div>
+        <h1 class="text-lg font-bold m-0">Add My Business</h1>
+        <p class="text-[13px] text-ink-2 mt-0.5 mb-0">Create an account to start uploading products</p>
+      </div>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="grid grid-cols-[1fr_auto_1.3fr] gap-8">
+        <div class="flex flex-col gap-5">
+          <div>
+            <label class="field-label">Business Name</label>
+            <input pInputText type="text" placeholder="Enter Business name" formControlName="businessName" class="w-full" />
+          </div>
+
+          <div>
+            <label class="field-label">Business Logo</label>
+            <label class="flex flex-col items-center justify-center gap-1 border border-dashed border-line rounded-xl p-8 text-ink-2 text-sm cursor-pointer text-center">
+              <input type="file" accept="image/jpeg,image/png,image/gif" (change)="onLogoSelected($event)" hidden />
+              <img *ngIf="logoPreviewUrl" [src]="logoPreviewUrl" alt="Logo preview" class="max-w-full max-h-[120px] rounded-lg object-cover" />
+              <ng-container *ngIf="!logoPreviewUrl">
+                <i class="pi pi-upload text-xl"></i>
+                <span>Logo Upload</span>
+                <span class="text-xs text-ink-3">Supported formats: JPG, PNG, GIF</span>
+              </ng-container>
+            </label>
+          </div>
+
+          <div>
+            <label class="field-label">Business Store Name</label>
+            <input pInputText type="text" placeholder="Enter Store Name" formControlName="storeName" class="w-full" />
+          </div>
+
+          <div>
+            <label class="field-label">Location</label>
+            <input pInputText type="text" placeholder="Enter Location" formControlName="location" class="w-full" />
+          </div>
+
+          <div>
+            <label class="field-label">Industry</label>
+            <p-select [options]="industries" formControlName="industry" placeholder="Select industry" styleClass="w-full" />
+          </div>
+        </div>
+
+        <div class="w-px bg-line"></div>
+
+        <div class="flex flex-col gap-5">
+          <label class="text-sm font-semibold">Product Category</label>
+          <p class="text-xs text-ink-3 -mt-3 mb-0">(Select all that apply)</p>
+          <div class="flex flex-wrap gap-3">
+            <button
+              type="button"
+              *ngFor="let category of availableCategories"
+              (click)="toggleCategory(category)"
+              [ngClass]="isSelected(category)
+                ? 'bg-brand-light border-brand text-brand font-medium'
+                : 'bg-surface border-brand text-ink'"
+              class="border rounded-full px-4 py-2 text-[13px] cursor-pointer"
+            >{{ category }}</button>
+            <p *ngIf="!availableCategories.length" class="text-[13px] text-ink-3">No categories yet</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-3 mt-8">
+        <p-button label="Cancel" [outlined]="true" (onClick)="cancel()" />
+        <p-button label="Add Business" type="submit" />
+      </div>
+    </form>
+  </div>
+</div>

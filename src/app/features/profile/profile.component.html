@@ -1,0 +1,126 @@
+<ng-container *ngIf="profile">
+  <div class="card bg-gradient-to-r from-[#F606BA] to-[#8B2FC9] !border-0 p-8 flex justify-between items-end text-white mb-6 min-h-[120px]">
+    <div class="flex items-center gap-4">
+      <div class="w-16 h-16 bg-white text-brand rounded-lg flex items-center justify-center text-[22px] font-bold">{{ profile.avatarInitials }}</div>
+      <div>
+        <h1 class="text-2xl font-bold m-0">{{ profile.name }}</h1>
+        <p class="opacity-85 mt-1 mb-0">&#64;{{ profile.handle }}</p>
+      </div>
+    </div>
+    <p-button *ngIf="!isEditing" label="Edit Profile" icon="pi pi-pencil" [outlined]="true"
+              styleClass="!bg-transparent !text-white !border-white" (onClick)="startEditing()" />
+  </div>
+
+  <div class="flex gap-4 mb-6">
+    <div class="flex-1 bg-[#F3F8FF] rounded-xl p-4 flex items-center gap-3">
+      <span class="w-9 h-9 rounded-lg bg-brand-light flex items-center justify-center text-brand"><i class="pi pi-box"></i></span>
+      <div><strong class="text-lg block">{{ profile.productsCount }}</strong><p class="text-xs text-ink-2 mt-0.5 mb-0">Products</p></div>
+    </div>
+    <div class="flex-1 bg-[#F3F8FF] rounded-xl p-4 flex items-center gap-3">
+      <span class="w-9 h-9 rounded-lg bg-brand-light flex items-center justify-center text-brand"><i class="pi pi-users"></i></span>
+      <div><strong class="text-lg block">{{ profile.retailersCount }}</strong><p class="text-xs text-ink-2 mt-0.5 mb-0">Retailers</p></div>
+    </div>
+    <div class="flex-1 bg-[#F3F8FF] rounded-xl p-4 flex items-center gap-3">
+      <span class="w-9 h-9 rounded-lg bg-brand-light flex items-center justify-center text-brand"><i class="pi pi-shopping-bag"></i></span>
+      <div><strong class="text-lg block">{{ profile.visits | number }}</strong><p class="text-xs text-ink-2 mt-0.5 mb-0">Visits</p></div>
+    </div>
+    <div class="flex-1 bg-[#F3F8FF] rounded-xl p-4 flex items-center gap-3">
+      <span class="w-9 h-9 rounded-lg bg-brand-light flex items-center justify-center text-brand"><i class="pi pi-chart-line"></i></span>
+      <div><strong class="text-lg block text-success">+{{ profile.growthPercent }}%</strong><p class="text-xs text-ink-2 mt-0.5 mb-0">Growth</p></div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-[1.5fr_1fr] gap-6 items-start mb-6">
+    <div class="card p-6">
+      <h2 class="text-[15px] font-bold mb-4 mt-0">Business Information</h2>
+      <div class="grid grid-cols-2 gap-5">
+        <div>
+          <label class="text-xs text-ink-2 block mb-1">Location</label>
+          <p *ngIf="!isEditing" class="text-sm font-medium m-0">{{ profile.location }}</p>
+          <input *ngIf="isEditing" pInputText type="text" [(ngModel)]="editableProfile.location" class="w-full" />
+        </div>
+        <div>
+          <label class="text-xs text-ink-2 block mb-1">Industry</label>
+          <p *ngIf="!isEditing" class="text-sm font-medium m-0">{{ profile.industry }}</p>
+          <input *ngIf="isEditing" pInputText type="text" [(ngModel)]="editableProfile.industry" class="w-full" />
+        </div>
+        <div>
+          <label class="text-xs text-ink-2 block mb-1">Email</label>
+          <p *ngIf="!isEditing" class="text-sm font-medium m-0">{{ profile.email }}</p>
+          <input *ngIf="isEditing" pInputText type="email" [(ngModel)]="editableProfile.email" class="w-full" />
+        </div>
+        <div>
+          <label class="text-xs text-ink-2 block mb-1">Phone</label>
+          <p *ngIf="!isEditing" class="text-sm font-medium m-0">{{ profile.phone }}</p>
+          <input *ngIf="isEditing" pInputText type="text" [(ngModel)]="editableProfile.phone" class="w-full" />
+        </div>
+        <div>
+          <label class="text-xs text-ink-2 block mb-1">Founded</label>
+          <p *ngIf="!isEditing" class="text-sm font-medium m-0">{{ profile.founded }}</p>
+          <input *ngIf="isEditing" pInputText type="text" [(ngModel)]="editableProfile.founded" class="w-full" />
+        </div>
+        <div>
+          <label class="text-xs text-ink-2 block mb-1">Where2buy Link</label>
+          <p *ngIf="!isEditing" class="text-sm font-medium m-0">{{ profile.where2buyLink }}</p>
+          <input *ngIf="isEditing" pInputText type="text" [(ngModel)]="editableProfile.where2buyLink" class="w-full" />
+        </div>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-6">
+      <div class="card p-6 flex gap-4 items-start !border-brand bg-brand-light" *ngIf="profile.profileCompletenessPercent >= 100; else progressTpl">
+        <span class="w-10 h-10 rounded-lg bg-surface flex items-center justify-center text-lg shrink-0">🎉</span>
+        <div class="w-full">
+          <div class="flex justify-between items-center mb-3">
+            <h2 class="text-[15px] font-bold m-0">Profile Complete!</h2>
+            <strong>100%</strong>
+          </div>
+          <p class="text-xs text-ink-2 mb-3 mt-0">Your brand profile is fully verified and visible to all retailers.</p>
+          <p-progressbar [value]="100" [showValue]="false" [style]="{ height: '6px' }" />
+        </div>
+      </div>
+
+      <ng-template #progressTpl>
+        <div class="card p-6">
+          <div class="flex justify-between items-center mb-3">
+            <h2 class="text-[15px] font-bold m-0">Profile Completeness</h2>
+            <strong>{{ profile.profileCompletenessPercent }}%</strong>
+          </div>
+          <p-progressbar [value]="profile.profileCompletenessPercent" [showValue]="false" [style]="{ height: '6px' }" />
+          <p class="text-xs text-ink-2 mt-2.5 mb-0">{{ profile.completenessHint }}</p>
+        </div>
+      </ng-template>
+
+      <div class="card p-6">
+        <h2 class="text-[15px] font-bold mb-4 mt-0">Your Links</h2>
+        <div class="mb-4">
+          <label class="text-xs text-ink-2 block mb-1.5">Profile URL</label>
+          <div class="flex gap-2">
+            <input pInputText type="text" [value]="profile.profileUrl" readonly class="flex-1 !text-[13px] !text-ink-2" />
+            <p-button icon="pi pi-copy" [outlined]="true" severity="secondary" (onClick)="copyToClipboard(profile.profileUrl)" />
+          </div>
+        </div>
+        <div>
+          <label class="text-xs text-ink-2 block mb-1.5">Where2buy Link</label>
+          <div class="flex gap-2">
+            <input pInputText type="text" [value]="profile.where2buyLink" readonly class="flex-1 !text-[13px] !text-ink-2" />
+            <p-button icon="pi pi-copy" [outlined]="true" severity="secondary" (onClick)="copyToClipboard(profile.where2buyLink)" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card p-6 mb-6">
+    <h2 class="text-[15px] font-bold mb-4 mt-0">Product Categories</h2>
+    <div *ngIf="!isEditing" class="flex flex-wrap gap-2.5">
+      <p-tag *ngFor="let category of profile.productCategories" [value]="category" styleClass="bg-brand-light text-brand" />
+    </div>
+    <p-chips *ngIf="isEditing" [(ngModel)]="editableProfile.productCategories" styleClass="w-full" inputStyleClass="w-full" />
+  </div>
+
+  <div class="flex justify-end gap-3 mb-6" *ngIf="isEditing">
+    <p-button label="Cancel" [outlined]="true" (onClick)="cancelEditing()" />
+    <p-button label="Save" (onClick)="save()" />
+  </div>
+</ng-container>

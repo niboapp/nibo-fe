@@ -1,0 +1,47 @@
+<app-page-header title="List of Retailers" subtitle="Manage your existing retailers">
+  <p-button label="Import" icon="pi pi-download" [outlined]="true" />
+  <p-button label="Add Retailer" icon="pi pi-plus" routerLink="/retailers/add" />
+</app-page-header>
+
+<div class="card p-6">
+  <div class="flex justify-end mb-5">
+    <p-iconfield>
+      <p-inputicon class="pi pi-search" />
+      <input pInputText type="text" placeholder="Search" [(ngModel)]="searchTerm" (ngModelChange)="onSearch(dt)" />
+    </p-iconfield>
+  </div>
+
+  <p-table #dt [value]="retailers" [paginator]="true" [rows]="10"
+           [globalFilterFields]="globalFilterFields">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Name</th>
+        <th>Location</th>
+        <th>Phone Number</th>
+        <th>Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-retailer>
+      <tr>
+        <td>{{ retailer.name }}</td>
+        <td>{{ retailer.location }}</td>
+        <td>{{ retailer.phoneNumber }}</td>
+        <td class="text-right">
+          <p-button icon="pi pi-ellipsis-v" [text]="true" severity="secondary" [rounded]="true"
+                    (onClick)="openMenu($event, rowMenu, retailer)" />
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr><td colspan="4" class="empty-state">No retailers yet</td></tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<p-menu #rowMenu [popup]="true" [model]="menuItems" appendTo="body" />
+
+<app-retailer-view-modal
+  *ngIf="viewingRetailer"
+  [retailer]="viewingRetailer"
+  (close)="viewingRetailer = null"
+/>

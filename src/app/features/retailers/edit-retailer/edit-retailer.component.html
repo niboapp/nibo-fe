@@ -1,0 +1,22 @@
+<app-page-header title="Edit Retailer" [subtitle]="retailerName" [showBack]="true" (back)="goBack()"></app-page-header>
+
+<form class="card p-6 mb-6" [formGroup]="form" (ngSubmit)="update()">
+  <div class="grid grid-cols-3 gap-5">
+    <div>
+      <label class="field-label">Name</label>
+      <input pInputText type="text" formControlName="name" class="w-full" />
+    </div>
+    <div>
+      <label class="field-label">Location</label>
+      <input pInputText type="text" formControlName="location" class="w-full" />
+    </div>
+    <div>
+      <label class="field-label">Phone Number</label>
+      <input pInputText type="text" formControlName="phoneNumber" class="w-full" />
+    </div>
+  </div>
+</form>
+
+<div class="flex justify-end mb-6">
+  <p-button label="Update Retailer" icon="pi pi-check" (onClick)="update()" />
+</div>

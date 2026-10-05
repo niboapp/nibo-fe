@@ -1,0 +1,76 @@
+<app-page-header
+  [title]="isEditMode ? 'Edit Product' : 'Add New Product'"
+  [subtitle]="isEditMode ? form.get('name')?.value : 'Fill in the product details below'"
+  [showBack]="true"
+  (back)="goBack()"
+></app-page-header>
+
+<form class="card p-8" [formGroup]="form" (ngSubmit)="submit()">
+  <div class="grid grid-cols-[1fr_auto_1fr] gap-8">
+    <div class="flex flex-col gap-5">
+      <div>
+        <label class="field-label">Product Name</label>
+        <input pInputText type="text" placeholder="Enter product name" formControlName="name" class="w-full" />
+      </div>
+
+      <div>
+        <label class="field-label">Product Image</label>
+        <label class="relative flex flex-col items-center justify-center gap-1 border border-dashed border-line rounded-xl p-8 text-ink-2 text-sm cursor-pointer text-center">
+          <input type="file" accept="image/jpeg,image/png,image/gif" (change)="onFileSelected($event)" hidden />
+          <img *ngIf="imagePreviewUrl" [src]="imagePreviewUrl" alt="Preview" class="max-w-full max-h-[140px] rounded-lg object-cover" />
+          <ng-container *ngIf="!imagePreviewUrl">
+            <i class="pi pi-upload text-xl"></i>
+            <span>Image Upload</span>
+            <span class="text-xs text-ink-3">Supported formats: JPG, PNG, GIF</span>
+          </ng-container>
+          <span *ngIf="imagePreviewUrl" class="absolute bottom-2 text-xs text-brand font-medium">{{ isEditMode ? 'Edit Image' : 'Change Image' }}</span>
+        </label>
+      </div>
+
+      <div class="relative">
+        <label class="field-label">Product Description</label>
+        <textarea pTextarea placeholder="Description" formControlName="description" maxlength="300" rows="4" class="w-full resize-y"></textarea>
+        <span class="absolute right-2.5 bottom-2 text-[11px] text-ink-3">{{ descriptionLength }}/300</span>
+      </div>
+
+      <div>
+        <label class="field-label">Retail Price</label>
+        <p-inputnumber formControlName="retailPrice" placeholder="Enter retail price" [min]="0" styleClass="w-full" inputStyleClass="w-full" />
+      </div>
+    </div>
+
+    <div class="w-px bg-line"></div>
+
+    <div class="flex flex-col gap-5">
+      <div>
+        <label class="field-label">Quantity</label>
+        <p-inputnumber formControlName="quantity" [min]="1" styleClass="w-full" inputStyleClass="w-full" />
+      </div>
+
+      <div>
+        <label class="field-label">Barcode</label>
+        <input pInputText type="text" formControlName="barcode" class="w-full" />
+      </div>
+
+      <div>
+        <label class="field-label">Batch Number</label>
+        <input pInputText type="text" placeholder="Enter batch number" formControlName="batchNumber" class="w-full" />
+      </div>
+
+      <div>
+        <label class="field-label">Manufacturing Date</label>
+        <p-datepicker formControlName="manufacturingDate" dataType="string" dateFormat="yy-mm-dd" styleClass="w-full" inputStyleClass="w-full" [showIcon]="true" />
+      </div>
+
+      <div>
+        <label class="field-label">Expiring Date</label>
+        <p-datepicker formControlName="expiringDate" dataType="string" dateFormat="yy-mm-dd" styleClass="w-full" inputStyleClass="w-full" [showIcon]="true" />
+      </div>
+    </div>
+  </div>
+
+  <div class="flex justify-end gap-3 mt-8">
+    <p-button label="Cancel" [outlined]="true" (onClick)="goBack()" />
+    <p-button [label]="isEditMode ? 'Update Product' : 'Add Product'" type="submit" />
+  </div>
+</form>
