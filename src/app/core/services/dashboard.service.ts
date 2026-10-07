@@ -37,7 +37,16 @@ export class DashboardService {
   getProductPerformance(): Observable<ProductPerformanceCard[]> {
     return this.productsService.getProductPerformance();
   }
-  getTrafficSources(): Observable<TrafficSourceSlice[]> { return of([]); }
+  // TODO(backend): GET /dashboard/traffic-sources
+  getTrafficSources(): Observable<TrafficSourceSlice[]> {
+    return of([
+      { label: 'Direct Search', percent: 35, color: '#F606BA' },
+      { label: 'Social Media', percent: 28, color: '#8B5CF6' },
+      { label: 'Influencer Campaign', percent: 18, color: '#F79009' },
+      { label: 'Paid Ads', percent: 12, color: '#12B76A' },
+      { label: 'Referral Links', percent: 17, color: '#3B82F6' },
+    ]);
+  }
   // TODO(backend): GET /dashboard/traffic-performance
   getTrafficPerformance(): Observable<TrafficPerformanceRow[]> {
     return of([

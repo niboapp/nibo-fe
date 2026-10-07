@@ -8,8 +8,8 @@ import { TrafficSourceSlice } from '../../../../core/models/dashboard.model';
   imports: [CommonModule, ChartModule],
   template: `
     <div *ngIf="slices.length && isBrowser; else emptyTpl" class="flex items-center gap-6">
-      <div class="w-40 h-40 shrink-0">
-        <p-chart type="doughnut" [data]="chartData" [options]="chartOptions" />
+      <div class="w-80 h-80 shrink-0">
+        <p-chart type="polarArea" [data]="chartData" [options]="chartOptions" />
       </div>
       <ul class="list-none m-0 p-0 text-[13px]">
         <li *ngFor="let s of slices" class="flex items-center gap-2 mb-2 text-ink-2">
@@ -29,7 +29,12 @@ export class DonutChartComponent implements OnChanges {
   chartData: unknown;
   chartOptions = {
     maintainAspectRatio: false,
-    cutout: '70%',
+    scales: {
+      r: {
+        grid: { display: false },
+        ticks: { display: false }
+      }
+    },
     plugins: { legend: { display: false } }
   };
 
