@@ -73,7 +73,7 @@ export class AddProductComponent implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['/products']);
+    this.router.navigate(['/app/products']);
   }
 
   submit(): void {
@@ -92,7 +92,7 @@ export class AddProductComponent implements OnInit {
       : this.productsService.addProduct(formData);
 
     request$.subscribe(() => {
-      this.router.navigate(['/products']);
+      this.router.navigate(['/app/products']);
     });
   }
 }

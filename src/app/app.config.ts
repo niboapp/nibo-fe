@@ -4,7 +4,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { providePrimeNG } from 'primeng/config';
 import { definePreset } from '@primeng/themes';
 import Aura from '@primeng/themes/aura';
-import { ConfirmationService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 
 import { routes } from './app.routes';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
@@ -39,6 +39,7 @@ export const appConfig: ApplicationConfig = {
         options: { darkModeSelector: false }
       }
     }),
-    ConfirmationService
+    ConfirmationService,
+    MessageService
   ]
 };

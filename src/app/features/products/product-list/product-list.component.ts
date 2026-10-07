@@ -53,7 +53,7 @@ export class ProductListComponent implements OnInit {
   ) {
     this.menuItems = [
       { label: 'View', icon: 'pi pi-eye', command: () => this.selectedProduct && this.viewProduct(this.selectedProduct) },
-      { label: 'Edit', icon: 'pi pi-pencil', command: () => this.selectedProduct && this.router.navigate(['/products', this.selectedProduct.id, 'edit']) },
+      { label: 'Edit', icon: 'pi pi-pencil', command: () => this.selectedProduct && this.router.navigate(['/app/products', this.selectedProduct.id, 'edit']) },
       { label: 'Delete', icon: 'pi pi-trash', command: () => this.selectedProduct && this.requestDelete(this.selectedProduct.id) }
     ];
   }

@@ -39,7 +39,7 @@ export class EditRetailerComponent implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['/retailers']);
+    this.router.navigate(['/app/retailers']);
   }
 
   update(): void {
@@ -48,7 +48,7 @@ export class EditRetailerComponent implements OnInit {
       return;
     }
     this.retailersService.updateRetailer(this.retailerId, this.form.value).subscribe(() => {
-      this.router.navigate(['/retailers']);
+      this.router.navigate(['/app/retailers']);
     });
   }
 }

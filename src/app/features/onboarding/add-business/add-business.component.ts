@@ -60,7 +60,7 @@ export class AddBusinessComponent implements OnInit {
   }
 
   cancel(): void {
-    this.router.navigate(['/overview']);
+    this.router.navigate(['/app/overview']);
   }
 
   submit(): void {
@@ -70,7 +70,7 @@ export class AddBusinessComponent implements OnInit {
     }
     const payload = { ...this.form.value, categories: this.selectedCategories };
     this.onboardingService.submitBusiness(payload, this.selectedLogo).subscribe(() => {
-      this.router.navigate(['/overview']);
+      this.router.navigate(['/app/overview']);
     });
   }
 }

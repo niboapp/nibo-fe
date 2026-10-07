@@ -39,7 +39,7 @@ export class RetailerListComponent implements OnInit {
   ) {
     this.menuItems = [
       { label: 'View', icon: 'pi pi-eye', command: () => this.selectedRetailer && this.viewRetailer(this.selectedRetailer) },
-      { label: 'Edit', icon: 'pi pi-pencil', command: () => this.selectedRetailer && this.router.navigate(['/retailers', this.selectedRetailer.id, 'edit']) },
+      { label: 'Edit', icon: 'pi pi-pencil', command: () => this.selectedRetailer && this.router.navigate(['/app/retailers', this.selectedRetailer.id, 'edit']) },
       { label: 'Delete', icon: 'pi pi-trash', command: () => this.selectedRetailer && this.requestDelete(this.selectedRetailer.id) }
     ];
   }

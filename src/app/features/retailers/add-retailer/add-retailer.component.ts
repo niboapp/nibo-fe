@@ -99,7 +99,7 @@ export class AddRetailerComponent {
   }
 
   goBack(): void {
-    this.router.navigate(['/retailers']);
+    this.router.navigate(['/app/retailers']);
   }
 
   saveRetailers(): void {
@@ -118,7 +118,7 @@ export class AddRetailerComponent {
     }
 
     this.retailersService.saveRetailers(rowsToSave).subscribe(() => {
-      this.router.navigate(['/retailers']);
+      this.router.navigate(['/app/retailers']);
     });
   }
 }

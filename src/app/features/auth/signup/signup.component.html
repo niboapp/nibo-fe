@@ -1,0 +1,47 @@
+<div class="min-h-screen bg-canvas flex flex-col">
+  <div class="px-8 py-6">
+    <img src="images/logo.png" alt="nibo" class="h-7">
+  </div>
+
+  <div class="flex-1 flex justify-center px-6 pt-8">
+    <div class="w-full max-w-[420px]">
+      <h1 class="text-2xl font-bold text-center m-0">Sign up</h1>
+      <p class="text-sm text-ink-2 text-center mt-2 mb-8">Create your Nibo account to get started</p>
+
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <div class="mb-5">
+          <label class="field-label">Name</label>
+          <input pInputText type="text" placeholder="Enter your full name" formControlName="name" class="w-full" />
+          <small *ngIf="isInvalid('name')" class="text-danger text-xs block mt-1">Full name is required</small>
+        </div>
+
+        <div class="mb-5">
+          <label class="field-label">Email</label>
+          <input pInputText type="email" placeholder="Enter your email" formControlName="email" class="w-full" />
+          <small *ngIf="isInvalid('email')" class="text-danger text-xs block mt-1">Enter a valid email address</small>
+        </div>
+
+        <div class="mb-5">
+          <label class="field-label">Password</label>
+          <p-password formControlName="password" placeholder="Enter your password" [toggleMask]="true" [feedback]="false"
+                      styleClass="w-full" inputStyleClass="w-full" />
+          <small *ngIf="isInvalid('password')" class="text-danger text-xs block mt-1">Password must be at least 6 characters</small>
+        </div>
+
+        <div class="mb-6">
+          <label class="field-label">Confirm Password</label>
+          <p-password formControlName="confirmPassword" placeholder="Confirm your password" [toggleMask]="true" [feedback]="false"
+                      styleClass="w-full" inputStyleClass="w-full" />
+          <small *ngIf="passwordMismatch" class="text-danger text-xs block mt-1">Passwords do not match</small>
+          <small *ngIf="!passwordMismatch && isInvalid('confirmPassword')" class="text-danger text-xs block mt-1">Please confirm your password</small>
+        </div>
+
+        <p-button label="Sign up" type="submit" styleClass="w-full" [disabled]="form.invalid" />
+      </form>
+
+      <p class="text-center text-[13px] text-ink-2 mt-16">
+        Already have an account? <a routerLink="/login" class="text-brand font-medium no-underline">Sign in</a>
+      </p>
+    </div>
+  </div>
+</div>

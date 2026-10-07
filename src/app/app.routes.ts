@@ -2,8 +2,25 @@ import { Routes } from '@angular/router';
 import { MainLayoutComponent } from './core/layout/main-layout/main-layout.component';
 
 export const routes: Routes = [
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
   {
-    path: '',
+    // No sidebar — standalone auth/onboarding screens
+    path: 'login',
+    loadComponent: () =>
+      import('./features/auth/login/login.component').then(m => m.LoginComponent)
+  },
+  {
+    path: 'signup',
+    loadComponent: () =>
+      import('./features/auth/signup/signup.component').then(m => m.SignupComponent)
+  },
+  {
+    path: 'forgot-password',
+    loadComponent: () =>
+      import('./features/auth/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent)
+  },
+  {
+    path: 'app',
     component: MainLayoutComponent,
     children: [
       { path: '', redirectTo: 'overview', pathMatch: 'full' },
@@ -50,10 +67,9 @@ export const routes: Routes = [
     ]
   },
   {
-    // No sidebar — this is a standalone onboarding screen
     path: 'add-business',
     loadComponent: () =>
       import('./features/onboarding/add-business/add-business.component').then(m => m.AddBusinessComponent)
   },
-  { path: '**', redirectTo: 'overview' }
+  { path: '**', redirectTo: 'login' }
 ];
