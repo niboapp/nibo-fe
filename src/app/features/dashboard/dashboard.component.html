@@ -23,9 +23,21 @@
 
 <div class="grid grid-cols-2 gap-6 mb-6">
   <div class="card p-6">
-    <h2 class="text-[15px] font-bold m-0">Total Visits Over Time</h2>
-    <p class="section-sub">Interest → Action relationship</p>
-    <app-visits-chart [data]="visitTrend" />
+    <div class="flex justify-between items-start mb-4">
+      <div>
+        <h2 class="text-[15px] font-bold m-0">Total Visits Over Time</h2>
+        <p class="section-sub">Interest → Action relationship</p>
+      </div>
+      <div class="flex gap-3 items-center">
+        <button type="button" (click)="showClicks = !showClicks"
+                class="px-4 py-2 rounded-lg border text-[13px] font-medium cursor-pointer bg-surface"
+                [ngClass]="showClicks ? 'border-[#F79009] text-[#F79009]' : 'border-line text-ink-3'">
+          Retailer Clicks
+        </button>
+        <p-select [options]="granularityOptions" [(ngModel)]="granularity" styleClass="w-28" />
+      </div>
+    </div>
+    <app-visits-chart [data]="visitTrend" [showClicks]="showClicks" />
   </div>
 
   <div class="card p-6">

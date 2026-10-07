@@ -40,6 +40,10 @@ export class DashboardComponent implements OnInit {
   retailerDiscovery: RetailerDiscoveryRow[] = [];
   lgaVisits: LgaVisit[] = [];
   drilldownState: string | null = null;
+  showClicks = true;
+  granularity = 'Daily';
+
+  readonly granularityOptions = ['Daily', 'Weekly', 'Monthly'];
 
   dateRange = 'Last 30 days';
   stateFilter = 'All States';

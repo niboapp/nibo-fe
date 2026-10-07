@@ -20,7 +20,24 @@ export class DashboardService {
       { key: 'retailerClicks', label: 'Retailer Clicks', value: '6,840', changePercent: 18.3, colorClass: 'blue' },
     ]);
   }
-  getVisitTrend(): Observable<VisitPoint[]> { return of([]); }
+  // TODO(backend): GET /dashboard/visit-trend
+  getVisitTrend(): Observable<VisitPoint[]> {
+    return of([
+      { date: 'Jan 4', searches: 930, retailerClicks: 150 },
+      { date: 'Jan 6', searches: 680, retailerClicks: 260 },
+      { date: 'Jan 8', searches: 720, retailerClicks: 120 },
+      { date: 'Jan 10', searches: 640, retailerClicks: 380 },
+      { date: 'Jan 12', searches: 2700, retailerClicks: 560 },
+      { date: 'Jan 14', searches: 690, retailerClicks: 370 },
+      { date: 'Jan 16', searches: 750, retailerClicks: 470 },
+      { date: 'Jan 18', searches: 1730, retailerClicks: 330 },
+      { date: 'Jan 20', searches: 1040, retailerClicks: 1330 },
+      { date: 'Jan 22', searches: 670, retailerClicks: 350 },
+      { date: 'Jan 24', searches: 720, retailerClicks: 460 },
+      { date: 'Jan 26', searches: 550, retailerClicks: 1390 },
+      { date: 'Jan 30', searches: 640, retailerClicks: 1350 },
+    ]);
+  }
   getStateVisits(): Observable<StateVisit[]> { return of([]); }
   // TODO(backend): GET /dashboard/demand-gap
   getDemandGap(): Observable<DemandGapRow[]> {
