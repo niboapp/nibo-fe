@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { TabsModule } from 'primeng/tabs';
-import { TableModule, Table } from 'primeng/table';
+import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
@@ -34,10 +34,12 @@ export class ProductListComponent implements OnInit {
   performanceCards: ProductPerformanceCard[] = [];
 
   searchTerm = '';
-  readonly globalFilterFields = ['name', 'description', 'batchNumber'];
+
+  productPageSize = 5;
+  productFirst = 0;
 
   performancePageSize = 6;
-  performancePage = 1;
+  performanceFirst = 0;
 
   activeTab: ProductTab = 'list';
 
@@ -63,9 +65,18 @@ export class ProductListComponent implements OnInit {
     this.productsService.getProductPerformance().subscribe(data => (this.performanceCards = data));
   }
 
-  onSearch(table: Table): void {
-    this.performancePage = 1;
-    table.filterGlobal(this.searchTerm, 'contains');
+  get filteredProducts(): Product[] {
+    const term = this.searchTerm.trim().toLowerCase();
+    if (!term) return this.products;
+    return this.products.filter(p =>
+      p.name.toLowerCase().includes(term) ||
+      p.description.toLowerCase().includes(term) ||
+      p.batchNumber.toLowerCase().includes(term)
+    );
+  }
+
+  get pagedProducts(): Product[] {
+    return this.filteredProducts.slice(this.productFirst, this.productFirst + this.productPageSize);
   }
 
   get filteredPerformanceCards(): ProductPerformanceCard[] {
@@ -75,12 +86,20 @@ export class ProductListComponent implements OnInit {
   }
 
   get pagedPerformanceCards(): ProductPerformanceCard[] {
-    const start = (this.performancePage - 1) * this.performancePageSize;
-    return this.filteredPerformanceCards.slice(start, start + this.performancePageSize);
+    return this.filteredPerformanceCards.slice(this.performanceFirst, this.performanceFirst + this.performancePageSize);
+  }
+
+  onSearch(): void {
+    this.productFirst = 0;
+    this.performanceFirst = 0;
+  }
+
+  onProductPageChange(event: PaginatorState): void {
+    this.productFirst = event.first ?? 0;
   }
 
   onPerformancePageChange(event: PaginatorState): void {
-    this.performancePage = (event.page ?? 0) + 1;
+    this.performanceFirst = event.first ?? 0;
   }
 
   openMenu(event: Event, menu: { toggle: (e: Event) => void }, product: Product): void {
@@ -100,6 +119,9 @@ export class ProductListComponent implements OnInit {
       accept: () => {
         this.productsService.deleteProduct(id).subscribe(() => {
           this.products = this.products.filter(p => p.id !== id);
+          if (this.productFirst >= this.filteredProducts.length) {
+            this.productFirst = Math.max(0, this.productFirst - this.productPageSize);
+          }
         });
       }
     });

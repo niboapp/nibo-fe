@@ -49,3 +49,27 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
 }
+
+/* Product view dialog — headless card inside a chromeless p-dialog */
+.product-view-dialog {
+  border-radius: 16px;
+  overflow: hidden;
+}
+.product-view-dialog .p-dialog-header {
+  display: none;
+}
+.product-view-dialog .p-dialog-content {
+  padding: 0;
+}
+.product-view-card {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+.product-view-card .p-card-body,
+.product-view-card .p-card-content {
+  padding: 0;
+}
+.product-view-card .p-card-header {
+  position: relative;
+}
