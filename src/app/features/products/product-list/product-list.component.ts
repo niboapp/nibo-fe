@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TabsModule } from 'primeng/tabs';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -51,7 +51,8 @@ export class ProductListComponent implements OnInit {
   constructor(
     private productsService: ProductsService,
     private confirmationService: ConfirmationService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {
     this.menuItems = [
       { label: 'View', icon: 'pi pi-eye', command: () => this.selectedProduct && this.viewProduct(this.selectedProduct) },
@@ -61,6 +62,11 @@ export class ProductListComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.route.queryParamMap.subscribe(params => {
+      if (params.get('tab') === 'performance') {
+        this.activeTab = 'performance';
+      }
+    });
     this.productsService.getProducts().subscribe(data => (this.products = data));
     this.productsService.getProductPerformance().subscribe(data => (this.performanceCards = data));
   }

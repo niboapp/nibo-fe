@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 
 import { SelectModule } from 'primeng/select';
@@ -22,7 +23,7 @@ import {
 @Component({
   selector: 'app-dashboard',
   imports: [
-    CommonModule, FormsModule,
+    CommonModule, FormsModule, RouterLink,
     SelectModule, ButtonModule, TableModule, ProgressBarModule,
     PageHeaderComponent, StatCardComponent, VisitsChartComponent, DonutChartComponent, GeoDemandComponent
   ],
