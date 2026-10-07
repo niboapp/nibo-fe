@@ -2,12 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { TableModule, Table } from 'primeng/table';
+import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { MenuModule } from 'primeng/menu';
+import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 import { ConfirmationService, MenuItem } from 'primeng/api';
 import { Retailer } from '../../../core/models/retailer.model';
 import { RetailersService } from '../../../core/services/retailers.service';
@@ -19,6 +20,7 @@ import { RetailerViewModalComponent } from '../components/retailer-view-modal/re
   imports: [
     CommonModule, FormsModule, RouterLink,
     TableModule, ButtonModule, IconFieldModule, InputIconModule, InputTextModule, MenuModule,
+    PaginatorModule,
     PageHeaderComponent, RetailerViewModalComponent
   ],
   templateUrl: './retailer-list.component.html'
@@ -26,7 +28,8 @@ import { RetailerViewModalComponent } from '../components/retailer-view-modal/re
 export class RetailerListComponent implements OnInit {
   retailers: Retailer[] = [];
   searchTerm = '';
-  readonly globalFilterFields = ['name', 'location', 'phoneNumber'];
+  pageSize = 10;
+  first = 0;
   viewingRetailer: Retailer | null = null;
   selectedRetailer: Retailer | null = null;
 
@@ -50,8 +53,26 @@ export class RetailerListComponent implements OnInit {
     });
   }
 
-  onSearch(table: Table): void {
-    table.filterGlobal(this.searchTerm, 'contains');
+  get filteredRetailers(): Retailer[] {
+    const term = this.searchTerm.trim().toLowerCase();
+    if (!term) return this.retailers;
+    return this.retailers.filter(r =>
+      r.name.toLowerCase().includes(term) ||
+      r.location.toLowerCase().includes(term) ||
+      r.phoneNumber.includes(term)
+    );
+  }
+
+  get pagedRetailers(): Retailer[] {
+    return this.filteredRetailers.slice(this.first, this.first + this.pageSize);
+  }
+
+  onSearch(): void {
+    this.first = 0;
+  }
+
+  onPageChange(event: PaginatorState): void {
+    this.first = event.first ?? 0;
   }
 
   openMenu(event: Event, menu: { toggle: (e: Event) => void }, retailer: Retailer): void {
@@ -71,6 +92,9 @@ export class RetailerListComponent implements OnInit {
       accept: () => {
         this.retailersService.deleteRetailer(id).subscribe(() => {
           this.retailers = this.retailers.filter(r => r.id !== id);
+          if (this.first >= this.filteredRetailers.length) {
+            this.first = Math.max(0, this.first - this.pageSize);
+          }
         });
       }
     });

@@ -31,6 +31,17 @@ const MOCK_PRODUCTS: Product[] = [
   { id: '0024', name: 'Yogurt Drink 40cl', imageUrl: 'images/placeholder.png', description: 'Strawberry probiotic yogurt drink', retailPrice: 3000, quantity: 70, batchNumber: 'GHHHSY67296', category: 'Dairy', dateAdded: '2025-01-24' },
 ];
 
+// TODO(backend): replace with data from the product-performance endpoint
+const MOCK_PERFORMANCE: ProductPerformanceCard[] = MOCK_PRODUCTS.slice(0, 14).map((p, i) => ({
+  id: p.id,
+  name: p.name,
+  imageUrl: p.imageUrl,
+  totalVisits: 4200 + i * 137,
+  coveragePercent: 78 - (i % 5) * 3,
+  growthPercent: 12.4 + (i % 4) * 0.8,
+  productViews: 1800 + i * 95,
+}));
+
 @Injectable({ providedIn: 'root' })
 export class ProductsService {
   // TODO(backend): swap each of these for real HTTP calls
@@ -57,6 +68,6 @@ export class ProductsService {
   }
 
   getProductPerformance(): Observable<ProductPerformanceCard[]> {
-    return of([]);
+    return of(MOCK_PERFORMANCE);
   }
 }

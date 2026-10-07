@@ -70,7 +70,9 @@
       <p-tabpanel value="performance">
         <div class="grid grid-cols-3 gap-4">
           <div class="bg-[#F5F5F5] rounded-xl p-4" *ngFor="let card of pagedPerformanceCards">
-            <div class="w-8 h-8 rounded-lg bg-brand-light mb-3"></div>
+            <img *ngIf="card.imageUrl" [src]="card.imageUrl" [alt]="card.name"
+                 class="w-8 h-8 rounded-lg border border-line object-cover mb-3" />
+            <div *ngIf="!card.imageUrl" class="w-8 h-8 rounded-lg bg-brand-light mb-3"></div>
             <h3 class="text-sm font-medium mb-2.5">{{ card.name }}</h3>
             <div class="flex justify-between text-xs text-ink-2 py-1"><span>Total Visits</span><span class="text-ink font-medium">{{ card.totalVisits | number }}</span></div>
             <div class="flex justify-between text-xs text-ink-2 py-1"><span>Coverage</span><span class="text-ink font-medium">{{ card.coveragePercent }}%</span></div>

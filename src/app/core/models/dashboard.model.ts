@@ -27,6 +27,7 @@ export interface DemandGapRow {
 export interface ProductPerformanceCard {
   id: string;
   name: string;
+  imageUrl?: string;
   totalVisits: number;
   coveragePercent: number;
   growthPercent: number;
