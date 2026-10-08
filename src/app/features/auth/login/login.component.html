@@ -24,7 +24,7 @@
           Forgot Password? <a routerLink="/forgot-password" class="text-brand font-medium no-underline">Reset</a>
         </div>
 
-        <p-button label="Log in" type="submit" styleClass="w-full" [disabled]="form.invalid" />
+        <p-button label="Log in" type="submit" styleClass="w-full" [disabled]="form.invalid" [loading]="loading" />
       </form>
 
       <p-divider align="center" styleClass="my-6">

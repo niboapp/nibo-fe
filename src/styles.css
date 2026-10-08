@@ -33,7 +33,17 @@
     @apply text-[13px] font-medium block mb-1.5;
   }
   .empty-state {
-    @apply text-center text-ink-3 py-10 text-sm;
+    @apply text-center text-ink-2 py-14 text-[15px] font-medium tracking-tight;
+  }
+  .empty-state-rich {
+    text-align: center !important;
+    @apply py-14;
+  }
+  .empty-state-rich .empty-title {
+    @apply block text-[15px] font-semibold text-ink;
+  }
+  .empty-state-rich .empty-hint {
+    @apply block text-[13px] font-normal text-ink-3 mt-1;
   }
 }
 

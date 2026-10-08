@@ -71,6 +71,6 @@
 
   <div class="flex justify-end gap-3 mt-8">
     <p-button label="Cancel" [outlined]="true" (onClick)="goBack()" />
-    <p-button [label]="isEditMode ? 'Update Product' : 'Add Product'" type="submit" />
+    <p-button [label]="isEditMode ? 'Update Product' : 'Add Product'" type="submit" [loading]="loading" />
   </div>
 </form>

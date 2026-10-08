@@ -19,7 +19,7 @@
 
     <p-tabpanels>
       <p-tabpanel value="list">
-        <p-table [value]="pagedProducts">
+        <p-table [value]="loadingProducts ? skeletonRows : filteredProducts">
           <ng-template pTemplate="header">
             <tr>
               <th>Product Name</th>
@@ -33,31 +33,55 @@
           </ng-template>
           <ng-template pTemplate="body" let-product>
             <tr>
-              <td>{{ product.name }}</td>
               <td>
-                <img *ngIf="product.imageUrl" [src]="product.imageUrl" [alt]="product.name"
-                     class="w-9 h-9 rounded-lg border border-line object-cover" />
-                <span *ngIf="!product.imageUrl" class="w-9 h-9 rounded-lg border border-line bg-canvas block"></span>
+                <p-skeleton *ngIf="loadingProducts" width="70%" height="1rem" />
+                <ng-container *ngIf="!loadingProducts">{{ product.name }}</ng-container>
               </td>
-              <td>{{ truncate(product.description, 30) }}</td>
-              <td>₦{{ product.retailPrice | number }}</td>
-              <td>{{ product.quantity }}</td>
-              <td>{{ product.batchNumber }}</td>
+              <td>
+                <p-skeleton *ngIf="loadingProducts" shape="rectangle" size="2.25rem" borderRadius="8px" />
+                <ng-container *ngIf="!loadingProducts">
+                  <img *ngIf="product.imageUrl" [src]="product.imageUrl" [alt]="product.name"
+                       class="w-9 h-9 rounded-lg border border-line object-cover" />
+                  <span *ngIf="!product.imageUrl" class="w-9 h-9 rounded-lg border border-line bg-canvas block"></span>
+                </ng-container>
+              </td>
+              <td>
+                <p-skeleton *ngIf="loadingProducts" height="1rem" />
+                <ng-container *ngIf="!loadingProducts">{{ truncate(product.description, 30) }}</ng-container>
+              </td>
+              <td>
+                <p-skeleton *ngIf="loadingProducts" width="4rem" height="1rem" />
+                <ng-container *ngIf="!loadingProducts">₦{{ product.retailPrice | number }}</ng-container>
+              </td>
+              <td>
+                <p-skeleton *ngIf="loadingProducts" width="2rem" height="1rem" />
+                <ng-container *ngIf="!loadingProducts">{{ product.quantity }}</ng-container>
+              </td>
+              <td>
+                <p-skeleton *ngIf="loadingProducts" width="6rem" height="1rem" />
+                <ng-container *ngIf="!loadingProducts">{{ product.batchNumber }}</ng-container>
+              </td>
               <td class="text-right">
-                <p-button icon="pi pi-ellipsis-v" [text]="true" severity="secondary" [rounded]="true"
+                <p-skeleton *ngIf="loadingProducts" shape="circle" size="1.5rem" styleClass="ml-auto" />
+                <p-button *ngIf="!loadingProducts" icon="pi pi-ellipsis-v" [text]="true" severity="secondary" [rounded]="true"
                           (onClick)="openMenu($event, rowMenu, product)" />
               </td>
             </tr>
           </ng-template>
           <ng-template pTemplate="emptymessage">
-            <tr><td colspan="7" class="empty-state">No products yet</td></tr>
+            <tr>
+              <td colspan="7" class="empty-state-rich">
+                <span class="empty-title">No products yet</span>
+                <span class="empty-hint">Products you add will appear in this list</span>
+              </td>
+            </tr>
           </ng-template>
         </p-table>
 
-        <div class="flex justify-end mt-6" *ngIf="filteredProducts.length > productPageSize">
+        <div class="flex justify-end mt-6" *ngIf="productTotal > 0">
           <p-paginator
             [rows]="productPageSize"
-            [totalRecords]="filteredProducts.length"
+            [totalRecords]="productTotal"
             [first]="productFirst"
             [showFirstLastIcon]="false"
             (onPageChange)="onProductPageChange($event)">
@@ -79,7 +103,10 @@
             <div class="flex justify-between text-xs text-ink-2 py-1"><span>Growth</span><span class="text-success font-medium">+{{ card.growthPercent }}%</span></div>
             <div class="flex justify-between text-xs text-ink-2 py-1"><span>Product Views</span><span class="text-ink font-medium">{{ card.productViews | number }}</span></div>
           </div>
-          <p *ngIf="!pagedPerformanceCards.length" class="empty-state col-span-3">No performance data yet</p>
+          <p *ngIf="!pagedPerformanceCards.length" class="empty-state-rich col-span-3">
+            <span class="empty-title">No performance data yet</span>
+            <span class="empty-hint">Visits and views show up here once products get activity</span>
+          </p>
         </div>
 
         <div class="flex justify-end mt-6" *ngIf="filteredPerformanceCards.length > performancePageSize">

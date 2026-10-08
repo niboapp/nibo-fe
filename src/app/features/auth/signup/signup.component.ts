@@ -21,6 +21,7 @@ const passwordMatchValidator: ValidatorFn = (control: AbstractControl): Validati
 })
 export class SignupComponent {
   form: FormGroup;
+  loading = false;
 
   constructor(
     private fb: FormBuilder,
@@ -51,13 +52,24 @@ export class SignupComponent {
       return;
     }
     const { name, email, password } = this.form.value;
-    this.authService.signUp({ name, email, password }).subscribe(() => {
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Account created',
-        detail: 'Your account has been created. Please log in.'
-      });
-      this.router.navigate(['/login']);
+    this.loading = true;
+    this.authService.signUp({ name, email, password }).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Account created',
+          detail: 'Welcome to Nibo! Let\'s set up your business.'
+        });
+        this.router.navigate(['/add-business']);
+      },
+      error: (err) => {
+        this.loading = false;
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Sign up failed',
+          detail: err?.error?.message || 'Unable to create your account. Please try again.'
+        });
+      }
     });
   }
 }

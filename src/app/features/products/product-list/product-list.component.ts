@@ -10,7 +10,8 @@ import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { MenuModule } from 'primeng/menu';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
-import { ConfirmationService, MenuItem } from 'primeng/api';
+import { SkeletonModule } from 'primeng/skeleton';
+import { ConfirmationService, MenuItem, MessageService } from 'primeng/api';
 import { Product } from '../../../core/models/product.model';
 import { ProductPerformanceCard } from '../../../core/models/dashboard.model';
 import { ProductsService } from '../../../core/services/products.service';
@@ -24,13 +25,16 @@ type ProductTab = 'list' | 'performance';
   imports: [
     CommonModule, FormsModule, RouterLink,
     TabsModule, TableModule, ButtonModule, IconFieldModule, InputIconModule,
-    InputTextModule, MenuModule, PaginatorModule,
+    InputTextModule, MenuModule, PaginatorModule, SkeletonModule,
     PageHeaderComponent, ProductViewModalComponent
   ],
   templateUrl: './product-list.component.html'
 })
 export class ProductListComponent implements OnInit {
   products: Product[] = [];
+  productTotal = 0;
+  loadingProducts = true;
+  skeletonRows: Product[] = new Array(5).fill({} as Product);
   performanceCards: ProductPerformanceCard[] = [];
 
   searchTerm = '';
@@ -51,6 +55,7 @@ export class ProductListComponent implements OnInit {
   constructor(
     private productsService: ProductsService,
     private confirmationService: ConfirmationService,
+    private messageService: MessageService,
     private router: Router,
     private route: ActivatedRoute
   ) {
@@ -67,10 +72,32 @@ export class ProductListComponent implements OnInit {
         this.activeTab = 'performance';
       }
     });
-    this.productsService.getProducts().subscribe(data => (this.products = data));
+    this.loadProducts();
     this.productsService.getProductPerformance().subscribe(data => (this.performanceCards = data));
   }
 
+  loadProducts(): void {
+    this.loadingProducts = true;
+    this.productsService
+      .getProducts({ limit: this.productPageSize, skip: this.productFirst })
+      .subscribe({
+        next: (page) => {
+          this.products = page.items;
+          this.productTotal = page.total;
+          this.loadingProducts = false;
+        },
+        error: (err) => {
+          this.loadingProducts = false;
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Unable to load products',
+            detail: err?.error?.message || 'Something went wrong. Please try again.'
+          });
+        }
+      });
+  }
+
+  // server-side paging returns one page at a time — search filters the loaded page
   get filteredProducts(): Product[] {
     const term = this.searchTerm.trim().toLowerCase();
     if (!term) return this.products;
@@ -79,10 +106,6 @@ export class ProductListComponent implements OnInit {
       p.description.toLowerCase().includes(term) ||
       p.batchNumber.toLowerCase().includes(term)
     );
-  }
-
-  get pagedProducts(): Product[] {
-    return this.filteredProducts.slice(this.productFirst, this.productFirst + this.productPageSize);
   }
 
   get filteredPerformanceCards(): ProductPerformanceCard[] {
@@ -102,6 +125,7 @@ export class ProductListComponent implements OnInit {
 
   onProductPageChange(event: PaginatorState): void {
     this.productFirst = event.first ?? 0;
+    this.loadProducts();
   }
 
   onPerformancePageChange(event: PaginatorState): void {
@@ -124,10 +148,11 @@ export class ProductListComponent implements OnInit {
       rejectLabel: 'No',
       accept: () => {
         this.productsService.deleteProduct(id).subscribe(() => {
-          this.products = this.products.filter(p => p.id !== id);
-          if (this.productFirst >= this.filteredProducts.length) {
+          // step back a page if we just deleted the last item on this page
+          if (this.products.length === 1 && this.productFirst > 0) {
             this.productFirst = Math.max(0, this.productFirst - this.productPageSize);
           }
+          this.loadProducts();
         });
       }
     });

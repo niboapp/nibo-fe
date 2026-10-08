@@ -36,7 +36,7 @@
           <small *ngIf="!passwordMismatch && isInvalid('confirmPassword')" class="text-danger text-xs block mt-1">Please confirm your password</small>
         </div>
 
-        <p-button label="Sign up" type="submit" styleClass="w-full" [disabled]="form.invalid" />
+        <p-button label="Sign up" type="submit" styleClass="w-full" [disabled]="form.invalid" [loading]="loading" />
       </form>
 
       <p class="text-center text-[13px] text-ink-2 mt-16">
