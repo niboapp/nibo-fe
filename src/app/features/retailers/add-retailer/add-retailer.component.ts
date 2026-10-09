@@ -10,6 +10,7 @@ import { SelectModule } from 'primeng/select';
 import { CheckboxModule } from 'primeng/checkbox';
 import { TagModule } from 'primeng/tag';
 import { PageHeaderComponent } from '../../../core/layout/page-header/page-header.component';
+import { MessageService } from 'primeng/api';
 import { RetailersService } from '../../../core/services/retailers.service';
 import { RetailerChainResult } from '../../../core/models/retailer-chain-result.model';
 
@@ -33,10 +34,12 @@ export class AddRetailerComponent {
   selectedResultIds = new Set<string>();
 
   manualForm: FormGroup;
+  saving = false;
 
   constructor(
     private fb: FormBuilder,
     private retailersService: RetailersService,
+    private messageService: MessageService,
     private router: Router
   ) {
     this.manualForm = this.fb.group({
@@ -117,8 +120,17 @@ export class AddRetailerComponent {
       return;
     }
 
-    this.retailersService.saveRetailers(rowsToSave).subscribe(() => {
-      this.router.navigate(['/app/retailers']);
+    this.saving = true;
+    this.retailersService.saveRetailers(rowsToSave).subscribe({
+      next: () => this.router.navigate(['/app/retailers']),
+      error: (err) => {
+        this.saving = false;
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Unable to save retailers',
+          detail: err?.error?.message || 'Something went wrong. Please try again.'
+        });
+      }
     });
   }
 }

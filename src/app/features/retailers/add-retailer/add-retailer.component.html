@@ -67,5 +67,5 @@
 </div>
 
 <div class="flex justify-end mb-6">
-  <p-button label="Save Retailers" icon="pi pi-check" (onClick)="saveRetailers()" />
+  <p-button label="Save Retailers" icon="pi pi-check" [loading]="saving" (onClick)="saveRetailers()" />
 </div>

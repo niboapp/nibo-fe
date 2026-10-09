@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { PageHeaderComponent } from '../../../core/layout/page-header/page-header.component';
+import { MessageService } from 'primeng/api';
 import { RetailersService } from '../../../core/services/retailers.service';
 
 @Component({
@@ -16,12 +17,14 @@ export class EditRetailerComponent implements OnInit {
   form: FormGroup;
   retailerId = '';
   retailerName = '';
+  loading = false;
 
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private router: Router,
-    private retailersService: RetailersService
+    private retailersService: RetailersService,
+    private messageService: MessageService
   ) {
     this.form = this.fb.group({
       name: ['', Validators.required],
@@ -47,8 +50,17 @@ export class EditRetailerComponent implements OnInit {
       this.form.markAllAsTouched();
       return;
     }
-    this.retailersService.updateRetailer(this.retailerId, this.form.value).subscribe(() => {
-      this.router.navigate(['/app/retailers']);
+    this.loading = true;
+    this.retailersService.updateRetailer(this.retailerId, this.form.value).subscribe({
+      next: () => this.router.navigate(['/app/retailers']),
+      error: (err) => {
+        this.loading = false;
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Unable to update retailer',
+          detail: err?.error?.message || 'Something went wrong. Please try again.'
+        });
+      }
     });
   }
 }

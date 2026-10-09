@@ -1,69 +1,91 @@
-import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { Retailer } from '../models/retailer.model';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable, delay, map, of } from 'rxjs';
+import { environment } from '../../../environments/environment';
+import { ApiResponse } from '../models/auth.model';
+import { Retailer, RetailerRecord, RetailersPage } from '../models/retailer.model';
 import { RetailerChainResult } from '../models/retailer-chain-result.model';
-
-// TODO(backend): replace with data from the retailers endpoint
-const MOCK_RETAILERS: Retailer[] = [
-  { id: 'r01', name: 'BOLUKI PHARMACY', location: '15, IKU ROAD, PEN CINEMA, AGEGE, LAGOS', phoneNumber: '07071223479' },
-  { id: 'r02', name: 'MEDPLUS PHARMACY', location: '12, ALLEN AVENUE, IKEJA, LAGOS', phoneNumber: '08024561782' },
-  { id: 'r03', name: 'HEALTHPLUS PHARMACY', location: '4, ADEOLA ODEKU STREET, VICTORIA ISLAND, LAGOS', phoneNumber: '08103345521' },
-  { id: 'r04', name: 'JENDOL SUPERMARKET', location: '9, ISHERI ROAD, OGBA, LAGOS', phoneNumber: '07012233098' },
-  { id: 'r05', name: 'EKO PHARMACY', location: '23, BROAD STREET, LAGOS ISLAND, LAGOS', phoneNumber: '09034521107' },
-  { id: 'r06', name: 'ALPHA PHARMACY', location: '31, MURI OKUNOLA STREET, VICTORIA ISLAND, LAGOS', phoneNumber: '08092211453' },
-  { id: 'r07', name: 'GOODLIFE PHARMACY', location: '7, OPEBI ROAD, IKEJA, LAGOS', phoneNumber: '07053381926' },
-  { id: 'r08', name: 'FOREMOST PHARMACY', location: '18, ADENIYI JONES AVENUE, IKEJA, LAGOS', phoneNumber: '08122098314' },
-  { id: 'r09', name: 'MABIFUS CHEMIST', location: '6, ENUGU STREET, SABO, YABA, LAGOS', phoneNumber: '08034421765' },
-  { id: 'r10', name: 'H-MEDIX PHARMACY', location: '44, ADEOLA HOPEWELL STREET, VICTORIA ISLAND, LAGOS', phoneNumber: '09081145237' },
-  { id: 'r11', name: 'EMZOR PHARMACY', location: '28, FATAI ATERE WAY, MATORI, LAGOS', phoneNumber: '07016543287' },
-  { id: 'r12', name: 'ANGELS PHARMACY', location: '11, TOYIN STREET, IKEJA, LAGOS', phoneNumber: '08147720918' },
-  { id: 'r13', name: 'CEDAR CREST PHARMACY', location: '5, APAPA OSHODI EXPRESSWAY, APAPA, LAGOS', phoneNumber: '08029984516' },
-  { id: 'r14', name: 'GREENLIFE PHARMACY', location: '17, HERBERT MACAULAY WAY, YABA, LAGOS', phoneNumber: '08163377042' },
-  { id: 'r15', name: 'TOMMY PHARMACY', location: '39, BODE THOMAS STREET, SURULERE, LAGOS', phoneNumber: '09054482913' },
-  { id: 'r16', name: 'PHARMA-DEKO STORE', location: '22, OSHODI APAPA EXPRESSWAY, OSHODI, LAGOS', phoneNumber: '07028866451' },
-  { id: 'r17', name: 'ROSELILY PHARMACY', location: '8, AWOLOWO ROAD, IKOYI, LAGOS', phoneNumber: '08071553928' },
-  { id: 'r18', name: 'DOMINO PHARMACY', location: '36, OGUNLANA DRIVE, SURULERE, LAGOS', phoneNumber: '08194022376' },
-  { id: 'r19', name: 'MELVIN PHARMACY', location: '14, ST FINBARRS ROAD, AKOKA, LAGOS', phoneNumber: '09037718465' },
-  { id: 'r20', name: 'BOND CHEMIST', location: '2, IDOWU TAYLOR STREET, VICTORIA ISLAND, LAGOS', phoneNumber: '07082551938' },
-  { id: 'r21', name: 'CRUSADER PHARMACY', location: '27, MARINA ROAD, LAGOS ISLAND, LAGOS', phoneNumber: '08056143729' },
-  { id: 'r22', name: 'MISSION PHARMACY', location: '50, AGEGE MOTOR ROAD, MUSHIN, LAGOS', phoneNumber: '08139244780' },
-];
 
 @Injectable({ providedIn: 'root' })
 export class RetailersService {
-  // TODO(backend): swap this for a real HTTP call, e.g.
-  // constructor(private http: HttpClient) {}
-  // getRetailers(): Observable<Retailer[]> {
-  //   return this.http.get<Retailer[]>(`${environment.apiUrl}/retailers`);
-  // }
-  getRetailers(): Observable<Retailer[]> {
-    return of(MOCK_RETAILERS);
+  private http = inject(HttpClient);
+  private baseUrl = `${environment.apiUrl}/v1/retailers`;
+
+  // GET /v1/retailers — filter keys must match the backend model's json attrs
+  getRetailers(filter: Record<string, string | number> = {}): Observable<RetailersPage> {
+    let params = new HttpParams();
+    Object.entries(filter).forEach(([key, value]) => {
+      params = params.set(key, String(value));
+    });
+
+    return this.http
+      .get<ApiResponse<RetailerRecord[]>>(this.baseUrl, { params })
+      .pipe(
+        // minimum 300ms so the table skeleton is always visible even on fast responses
+        delay(300),
+        map(res => {
+          const pager = (res.metadata ?? {}) as { total?: number; limit?: number; skip?: number };
+          return {
+            items: (res.data ?? []).map(toRetailer),
+            total: pager.total ?? 0,
+            limit: pager.limit ?? 0,
+            skip: pager.skip ?? 0,
+          };
+        })
+      );
   }
 
-  saveRetailers(rows: { name: string; location: string; phoneNumber: string }[]): Observable<void> {
-    // TODO(backend): POST rows to the retailers endpoint
-    return of(void 0);
+  // POST /v1/retailers — the endpoint accepts an array for bulk adds/imports
+  saveRetailers(rows: { name: string; location: string; phoneNumber: string }[]): Observable<Retailer[]> {
+    const records = rows.map(row => ({
+      name: row.name,
+      address: row.location,
+      phone_number: row.phoneNumber,
+    }));
+    return this.http
+      .post<ApiResponse<RetailerRecord[]>>(this.baseUrl, records)
+      .pipe(map(res => (res.data ?? []).map(toRetailer)));
   }
 
   getRetailer(id: string): Observable<Retailer> {
-    // TODO(backend): GET /retailers/:id
-    const retailer = MOCK_RETAILERS.find(r => r.id === id)
-      ?? { id, name: '', location: '', phoneNumber: '' };
-    return of({ ...retailer });
+    return this.http
+      .get<ApiResponse<RetailerRecord>>(`${this.baseUrl}/${id}`)
+      .pipe(map(res => toRetailer(res.data ?? {} as RetailerRecord)));
   }
 
-  updateRetailer(id: string, changes: Partial<Retailer>): Observable<void> {
-    // TODO(backend): PUT /retailers/:id
-    return of(void 0);
-  }
-
-  searchRetailerChains(term: string, state: string): Observable<RetailerChainResult[]> {
-    // TODO(backend): GET /retailers/chains?query=term&state=state
-    return of([]);
+  updateRetailer(id: string, changes: Partial<Retailer>): Observable<Retailer> {
+    return this.http
+      .put<ApiResponse<RetailerRecord>>(`${this.baseUrl}/${id}`, toRecord(changes))
+      .pipe(map(res => toRetailer(res.data ?? {} as RetailerRecord)));
   }
 
   deleteRetailer(id: string): Observable<void> {
-    // TODO(backend): DELETE /retailers/:id
-    return of(void 0);
+    return this.http
+      .delete<ApiResponse<null>>(`${this.baseUrl}/${id}`)
+      .pipe(map(() => void 0));
   }
+
+  // TODO(backend): no retailer-chain discovery endpoint exists yet
+  searchRetailerChains(term: string, state: string): Observable<RetailerChainResult[]> {
+    return of([]);
+  }
+}
+
+// backend document → frontend view model
+function toRetailer(record: RetailerRecord): Retailer {
+  return {
+    id: record._id,
+    name: record.name ?? '',
+    location: record.address ?? '',
+    phoneNumber: record.phone_number ?? '',
+  };
+}
+
+// frontend view model → backend payload (json attrs)
+function toRecord(retailer: Partial<Retailer>): Partial<RetailerRecord> {
+  return {
+    name: retailer.name,
+    address: retailer.location,
+    phone_number: retailer.phoneNumber,
+  };
 }

@@ -11,7 +11,7 @@
     </p-iconfield>
   </div>
 
-  <p-table [value]="pagedRetailers">
+  <p-table [value]="loading ? skeletonRows : filteredRetailers">
     <ng-template pTemplate="header">
       <tr>
         <th>Name</th>
@@ -22,11 +22,21 @@
     </ng-template>
     <ng-template pTemplate="body" let-retailer>
       <tr>
-        <td>{{ retailer.name }}</td>
-        <td>{{ retailer.location }}</td>
-        <td>{{ retailer.phoneNumber }}</td>
+        <td>
+          <p-skeleton *ngIf="loading" width="70%" height="1rem" />
+          <ng-container *ngIf="!loading">{{ retailer.name }}</ng-container>
+        </td>
+        <td>
+          <p-skeleton *ngIf="loading" height="1rem" />
+          <ng-container *ngIf="!loading">{{ retailer.location }}</ng-container>
+        </td>
+        <td>
+          <p-skeleton *ngIf="loading" width="6rem" height="1rem" />
+          <ng-container *ngIf="!loading">{{ retailer.phoneNumber }}</ng-container>
+        </td>
         <td class="text-right">
-          <p-button icon="pi pi-ellipsis-v" [text]="true" severity="secondary" [rounded]="true"
+          <p-skeleton *ngIf="loading" shape="circle" size="1.5rem" styleClass="ml-auto" />
+          <p-button *ngIf="!loading" icon="pi pi-ellipsis-v" [text]="true" severity="secondary" [rounded]="true"
                     (onClick)="openMenu($event, rowMenu, retailer)" />
         </td>
       </tr>
@@ -41,10 +51,10 @@
     </ng-template>
   </p-table>
 
-  <div class="flex justify-end mt-6" *ngIf="filteredRetailers.length > pageSize">
+  <div class="flex justify-end mt-6" *ngIf="retailerTotal > 0">
     <p-paginator
       [rows]="pageSize"
-      [totalRecords]="filteredRetailers.length"
+      [totalRecords]="retailerTotal"
       [first]="first"
       [showFirstLastIcon]="false"
       (onPageChange)="onPageChange($event)">
