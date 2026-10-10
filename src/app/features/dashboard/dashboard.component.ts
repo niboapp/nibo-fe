@@ -15,6 +15,8 @@ import { VisitsChartComponent } from './components/visits-chart/visits-chart.com
 import { DonutChartComponent } from './components/donut-chart/donut-chart.component';
 import { GeoDemandComponent } from './components/geo-demand/geo-demand.component';
 import { DashboardService } from '../../core/services/dashboard.service';
+import { AuthService } from '../../core/services/auth.service';
+import { orgCompleteness } from '../../core/services/profile.service';
 import {
   StatMetric, VisitPoint, StateVisit, DemandGapRow,
   ProductPerformanceCard, TrafficSourceSlice, TrafficPerformanceRow, LgaVisit, RetailerDiscoveryRow
@@ -53,9 +55,16 @@ export class DashboardComponent implements OnInit {
   readonly stateOptions = ['All States'];
   readonly lgaOptions = ['LGA'];
 
-  constructor(private dashboardService: DashboardService) {}
+  profileCompleteness = 100;
+
+  constructor(
+    private dashboardService: DashboardService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
+    this.profileCompleteness = orgCompleteness(this.authService.currentUser()?.organization);
+
     forkJoin({
       stats: this.dashboardService.getStats(),
       visitTrend: this.dashboardService.getVisitTrend(),

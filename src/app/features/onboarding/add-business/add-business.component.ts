@@ -5,7 +5,9 @@ import { Router } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { ButtonModule } from 'primeng/button';
+import { MessageService } from 'primeng/api';
 import { OnboardingService } from '../../../core/services/onboarding.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-add-business',
@@ -19,10 +21,13 @@ export class AddBusinessComponent implements OnInit {
   selectedCategories: string[] = [];
   logoPreviewUrl: string | null = null;
   selectedLogo: File | null = null;
+  loading = false;
 
   constructor(
     private fb: FormBuilder,
     private onboardingService: OnboardingService,
+    private authService: AuthService,
+    private messageService: MessageService,
     private router: Router
   ) {
     this.form = this.fb.group({
@@ -36,6 +41,19 @@ export class AddBusinessComponent implements OnInit {
   ngOnInit(): void {
     this.onboardingService.getAvailableCategories().subscribe(c => (this.availableCategories = c));
     this.onboardingService.getIndustries().subscribe(i => (this.industries = i));
+
+    // prefill whatever the organization already has (reopened via completeness CTA)
+    const org = this.authService.currentUser()?.organization;
+    if (org) {
+      this.form.patchValue({
+        businessName: org.name ?? '',
+        storeName: org.store_name ?? '',
+        location: org.business_address ?? '',
+        industry: org.industry ?? '',
+      });
+      this.selectedCategories = org.product_categories ?? [];
+      this.logoPreviewUrl = org.business_logo || null;
+    }
   }
 
   toggleCategory(category: string): void {
@@ -69,8 +87,18 @@ export class AddBusinessComponent implements OnInit {
       return;
     }
     const payload = { ...this.form.value, categories: this.selectedCategories };
-    this.onboardingService.submitBusiness(payload, this.selectedLogo).subscribe(() => {
-      this.router.navigate(['/app/overview']);
+    // logoPreviewUrl already holds the image as a base64 data URL — sent as business_logo
+    this.loading = true;
+    this.onboardingService.submitBusiness(payload, this.logoPreviewUrl).subscribe({
+      next: () => this.router.navigate(['/app/overview']),
+      error: (err) => {
+        this.loading = false;
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Unable to save business',
+          detail: err?.error?.message || err?.message || 'Something went wrong. Please try again.'
+        });
+      }
     });
   }
 }

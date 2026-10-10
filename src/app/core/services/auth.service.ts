@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { isPlatformBrowser } from '@angular/common';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { ApiResponse, AuthResponse, AuthUser } from '../models/auth.model';
+import { ApiResponse, AuthResponse, AuthUser, Organization } from '../models/auth.model';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -71,6 +71,21 @@ export class AuthService {
           return res.data.reset_key;
         })
       );
+  }
+
+  // merges fresh organization data into the stored session user
+  updateOrganization(org: Organization): void {
+    const user = this.currentUser();
+    if (!user) return;
+    const updated: AuthUser = {
+      ...user,
+      organization_id: user.organization_id ?? org._id,
+      organization: { ...(user.organization ?? { _id: org._id }), ...org },
+    };
+    if (this.isBrowser) {
+      localStorage.setItem(this.userKey, JSON.stringify(updated));
+    }
+    this.currentUser.set(updated);
   }
 
   logout(): void {

@@ -4,6 +4,17 @@
   <p-button label="Export" icon="pi pi-download" (onClick)="exportData()" />
 </app-page-header>
 
+<div class="card p-6 mb-6" *ngIf="profileCompleteness < 100">
+  <div class="flex justify-between items-center gap-6">
+    <div class="flex-1">
+      <h2 class="text-[15px] font-bold m-0">Complete your business profile</h2>
+      <p class="section-sub">Your profile is {{ profileCompleteness }}% complete — tell us about your business so retailers can find you</p>
+      <p-progressbar [value]="profileCompleteness" [showValue]="false" [style]="{ height: '6px' }" styleClass="mt-3 block" />
+    </div>
+    <p-button label="Complete Profile" icon="pi pi-arrow-right" iconPos="right" routerLink="/add-business" />
+  </div>
+</div>
+
 <div class="flex gap-4 mb-6">
   <app-stat-card *ngFor="let metric of stats" [metric]="metric" />
   <p *ngIf="!stats.length" class="empty-state w-full">No metrics yet</p>

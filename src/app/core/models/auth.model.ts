@@ -3,7 +3,16 @@ export interface Organization {
   name?: string;
   email?: string;
   username?: string;
+  store_name?: string;
   industry?: string;
+  business_address?: string;
+  business_logo?: string;
+  business_url?: string;
+  profile_url?: string;
+  product_categories?: string[];
+  phone_number?: string;
+  founded?: string;
+  created_at?: string;
   status?: string;
   is_verified?: boolean;
 }
