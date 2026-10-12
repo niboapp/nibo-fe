@@ -14,6 +14,9 @@ import { AuthService } from '../../../core/services/auth.service';
   imports: [CommonModule, ReactiveFormsModule, InputTextModule, SelectModule, ButtonModule],
   templateUrl: './add-business.component.html'
 })
+
+// just adding comments
+
 export class AddBusinessComponent implements OnInit {
   form: FormGroup;
   availableCategories: string[] = [];
