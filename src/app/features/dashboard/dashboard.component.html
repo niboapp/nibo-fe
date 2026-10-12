@@ -21,7 +21,10 @@
   </ng-container>
   <ng-template #statsTpl>
     <app-stat-card *ngFor="let metric of stats" [metric]="metric" />
-    <p *ngIf="!stats.length" class="empty-state w-full">No metrics yet</p>
+    <div *ngIf="!stats.length" class="empty-state-rich w-full">
+      <span class="empty-title">Your metrics will show here</span>
+      <span class="empty-hint">We track visits, clicks and coverage as retailers interact with your products.</span>
+    </div>
   </ng-template>
 </div>
 
@@ -121,7 +124,10 @@
       <div class="flex justify-between text-xs text-ink-2 py-1"><span>Growth</span><span class="text-success font-medium">+{{ p.growthPercent }}%</span></div>
       <div class="flex justify-between text-xs text-ink-2 py-1"><span>Product Views</span><span class="text-ink font-medium">{{ p.productViews | number }}</span></div>
     </div>
-    <p *ngIf="!loading && !productPerformance.length" class="empty-state w-full">No products yet</p>
+    <div *ngIf="!loading && !productPerformance.length" class="empty-state-rich w-full">
+      <span class="empty-title">No product activity yet</span>
+      <span class="empty-hint">Your best-performing products rank here once they start getting views.</span>
+    </div>
   </div>
 </div>
 

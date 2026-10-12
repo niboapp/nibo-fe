@@ -10,7 +10,12 @@ import { VisitPoint } from '../../../../core/models/dashboard.model';
     <div *ngIf="data.length && isBrowser; else emptyTpl" class="h-[280px]">
       <p-chart type="line" [data]="chartData" [options]="chartOptions" />
     </div>
-    <ng-template #emptyTpl><p class="empty-state">No visit data yet</p></ng-template>
+    <ng-template #emptyTpl>
+      <div class="empty-state-rich min-h-[280px] flex flex-col items-center justify-center">
+        <span class="empty-title">No activity yet</span>
+        <span class="empty-hint">Searches and clicks on your products will chart here as they happen.</span>
+      </div>
+    </ng-template>
   `
 })
 export class VisitsChartComponent implements OnChanges {

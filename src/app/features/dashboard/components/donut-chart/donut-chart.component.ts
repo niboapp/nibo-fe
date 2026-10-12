@@ -18,7 +18,12 @@ import { TrafficSourceSlice } from '../../../../core/models/dashboard.model';
         </li>
       </ul>
     </div>
-    <ng-template #emptyTpl><p class="empty-state">No traffic data yet</p></ng-template>
+    <ng-template #emptyTpl>
+      <div class="empty-state-rich min-h-[200px] flex flex-col items-center justify-center">
+        <span class="empty-title">No traffic data yet</span>
+        <span class="empty-hint">Where your visits come from will appear here once you get activity.</span>
+      </div>
+    </ng-template>
   `
 })
 export class DonutChartComponent implements OnChanges {

@@ -1,18 +1,21 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, OnDestroy, PLATFORM_ID, inject, ElementRef, ViewChild } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import Highcharts from 'highcharts/highmaps';
 import { StateVisit, LgaVisit } from '../../../../core/models/dashboard.model';
 
 @Component({
   selector: 'app-geo-demand',
   imports: [CommonModule],
   template: `
-    <div class="grid grid-cols-[1fr_220px] gap-6">
-      <div class="bg-canvas border border-dashed border-line rounded-xl min-h-[260px] flex flex-col items-center justify-center text-center p-6 text-ink-2 text-[13px]">
-        <p>World map visualization</p>
-        <span class="text-[11px] text-ink-3 mt-2 max-w-80">
-          Plug a mapping library in here (e.g. ngx-echarts or amCharts with a world GeoJSON) driven by [stateVisits] to render the choropleth.
-        </span>
-        <div class="flex gap-3 mt-4 text-[11px] items-center">
+    <div class="grid grid-cols-2 gap-6">
+      <div class="bg-canvas border border-dashed border-line rounded-xl min-h-[400px] flex flex-col items-center justify-center text-center p-6 text-ink-2 text-[13px]">
+        <div #mapContainer class="w-full" [hidden]="!stateVisits.length"></div>
+        <ng-container *ngIf="!stateVisits.length">
+          <span class="empty-title">No location data yet</span>
+          <span class="empty-hint max-w-80">Where visiting retailers are located will map here as you get activity.</span>
+        </ng-container>
+        <div *ngIf="stateVisits.length" class="flex gap-3 mt-4 text-[11px] items-center">
           <span><span class="w-2 h-2 rounded-full inline-block mr-1 bg-[#F9C6E8]"></span>Low</span>
           <span><span class="w-2 h-2 rounded-full inline-block mr-1 bg-[#F14FC0]"></span>Medium</span>
           <span><span class="w-2 h-2 rounded-full inline-block mr-1 bg-[#B3007A]"></span>High</span>
@@ -48,12 +51,78 @@ import { StateVisit, LgaVisit } from '../../../../core/models/dashboard.model';
     </div>
   `
 })
-export class GeoDemandComponent {
+export class GeoDemandComponent implements OnInit, OnChanges, OnDestroy {
   @Input() stateVisits: StateVisit[] = [];
   @Input() lgaVisits: LgaVisit[] = [];
   @Input() drilldownState: string | null = null;
   @Output() selectState = new EventEmitter<string>();
   @Output() clearState = new EventEmitter<void>();
+
+  @ViewChild('mapContainer') mapContainer?: ElementRef<HTMLElement>;
+
+  private topology: unknown;
+  private chart?: Highcharts.Chart;
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+
+  constructor(private http: HttpClient) {}
+
+  ngOnInit(): void {
+    if (!this.isBrowser) return;
+    this.http.get('/data/nigeria.topo.json').subscribe(topology => {
+      this.topology = topology;
+      this.renderChart();
+    });
+  }
+
+  ngOnChanges(): void {
+    this.renderChart();
+  }
+
+  ngOnDestroy(): void {
+    this.chart?.destroy();
+  }
+
+  private renderChart(): void {
+    if (!this.isBrowser || !this.topology || !this.mapContainer || !this.stateVisits.length) return;
+
+    const data = this.stateVisits.map(v => ({ name: v.state, value: v.visits }));
+    if (this.chart) {
+      this.chart.series[0].setData(data);
+      return;
+    }
+
+    this.chart = Highcharts.mapChart(this.mapContainer.nativeElement, {
+      chart: { map: this.topology as Highcharts.TopoJSON, backgroundColor: 'transparent', height: 280 },
+      title: { text: undefined },
+      mapNavigation: { enabled: false },
+      colorAxis: { min: 0, minColor: '#F9C6E8', maxColor: '#B3007A' },
+      legend: { enabled: false },
+      credits: { enabled: false },
+      tooltip: { pointFormat: '{point.name}: <b>{point.value}</b> visits' },
+      plotOptions: {
+        map: {
+          nullColor: '#F2F4F7',
+          borderColor: '#FFFFFF',
+          borderWidth: 0.5,
+          states: { hover: { color: '#F606BA' } }
+        }
+      },
+      series: [{
+        type: 'map',
+        name: 'Visits',
+        joinBy: 'name',
+        data,
+        point: {
+          events: {
+            click: (e: Highcharts.PointClickEventObject) => {
+              const name = (e.point as unknown as { name: string }).name;
+              this.selectState.emit(name);
+            }
+          }
+        }
+      } as Highcharts.SeriesMapOptions]
+    });
+  }
 
   clearDrilldown(): void {
     this.clearState.emit();

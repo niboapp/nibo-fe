@@ -13,7 +13,7 @@ import { StatMetric } from '../../../../core/models/dashboard.model';
           <i class="pi {{ iconByKey[metric.key] || 'pi-chart-bar' }} text-sm"></i>
         </span>
         <span class="text-xs font-semibold" [ngClass]="metric.changePercent < 0 ? 'text-danger' : 'text-success'">
-          {{ metric.changePercent >= 0 ? '+' : '' }}{{ metric.changePercent }}%
+          {{ metric.changePercent === 0 ? '—' : (metric.changePercent >= 0 ? '+' : '') + metric.changePercent + '%' }}
         </span>
       </div>
       <div class="text-xl font-bold">{{ metric.value }}</div>
