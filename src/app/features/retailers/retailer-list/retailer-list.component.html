@@ -3,6 +3,36 @@
   <p-button label="Add Retailer" icon="pi pi-plus" routerLink="/app/retailers/add" />
 </app-page-header>
 
+<div class="flex gap-4 mb-6">
+  <div style="border: 1px solid gainsboro;" class="bg-[#FFFFFF] rounded-xl p-4 flex items-center gap-3">
+    <span class="w-9 h-9 rounded-lg bg-brand-light flex items-center justify-center text-brand"><i
+        class="pi pi-shop"></i></span>
+    <div>
+      <p-skeleton *ngIf="loadingStats" width="4rem" height="1.5rem" styleClass="block" />
+      <strong *ngIf="!loadingStats" class="text-lg block">{{ stats.total | number }}</strong>
+      <p class="text-xs text-ink-2 mt-0.5 mb-0">Total No of Retailers</p>
+    </div>
+  </div>
+  <div style="border: 1px solid gainsboro;" class="bg-[#FFFFFF] rounded-xl p-4 flex items-center gap-3">
+    <span class="w-9 h-9 rounded-lg bg-brand-light flex items-center justify-center text-brand"><i
+        class="pi pi-check-circle"></i></span>
+    <div>
+      <p-skeleton *ngIf="loadingStats" width="4rem" height="1.5rem" styleClass="block" />
+      <strong *ngIf="!loadingStats" class="text-lg block">{{ stats.active | number }}</strong>
+      <p class="text-xs text-ink-2 mt-0.5 mb-0">Active Retailers</p>
+    </div>
+  </div>
+  <div style="border: 1px solid gainsboro;" class="bg-[#FFFFFF] rounded-xl p-4 flex items-center gap-3">
+    <span class="w-9 h-9 rounded-lg bg-brand-light flex items-center justify-center text-brand"><i
+        class="pi pi-times-circle"></i></span>
+    <div>
+      <p-skeleton *ngIf="loadingStats" width="4rem" height="1.5rem" styleClass="block" />
+      <strong *ngIf="!loadingStats" class="text-lg block">{{ stats.inactive | number }}</strong>
+      <p class="text-xs text-ink-2 mt-0.5 mb-0">Inactive Retailers</p>
+    </div>
+  </div>
+</div>
+
 <div class="card p-6">
   <div class="flex justify-end mb-5">
     <p-iconfield>
@@ -17,6 +47,7 @@
         <th>Name</th>
         <th>Location</th>
         <th>Phone Number</th>
+        <th>Status</th>
         <th>Actions</th>
       </tr>
     </ng-template>
@@ -34,6 +65,10 @@
           <p-skeleton *ngIf="loading" width="6rem" height="1rem" />
           <ng-container *ngIf="!loading">{{ retailer.phoneNumber }}</ng-container>
         </td>
+        <td>
+          <p-skeleton *ngIf="loading" width="6rem" height="1rem" />
+          <ng-container *ngIf="!loading"><p-badge [value]="statusLabel(retailer)" [severity]="statusSeverity(retailer)" /></ng-container>
+        </td>
         <td class="text-right">
           <p-skeleton *ngIf="loading" shape="circle" size="1.5rem" styleClass="ml-auto" />
           <p-button *ngIf="!loading" icon="pi pi-ellipsis-v" [text]="true" severity="secondary" [rounded]="true"
@@ -43,7 +78,7 @@
     </ng-template>
     <ng-template pTemplate="emptymessage">
       <tr>
-        <td colspan="4" class="empty-state-rich">
+        <td colspan="5" class="empty-state-rich">
           <span class="empty-title">No retailers yet</span>
           <span class="empty-hint">Retailers you add or import will appear here</span>
         </td>

@@ -1,4 +1,35 @@
-<ng-container *ngIf="profile">
+<ng-container *ngIf="loading">
+  <div class="card !border-0 p-8 mb-6 min-h-[120px] flex items-center gap-4">
+    <p-skeleton shape="square" size="4rem" borderRadius="8px" />
+    <div class="flex-1">
+      <p-skeleton width="12rem" height="1.5rem" styleClass="mb-2" />
+      <p-skeleton width="6rem" height="1rem" />
+    </div>
+  </div>
+  <div class="flex gap-4 mb-6">
+    <p-skeleton *ngFor="let _ of [1,2,3,4]" height="76px" borderRadius="12px" styleClass="flex-1" />
+  </div>
+  <div class="grid grid-cols-[1.5fr_1fr] gap-6 items-start mb-6">
+    <div class="card p-6">
+      <p-skeleton width="10rem" height="1.25rem" styleClass="mb-5" />
+      <div class="grid grid-cols-2 gap-5">
+        <p-skeleton *ngFor="let _ of [1,2,3,4,5,6]" height="2.5rem" />
+      </div>
+    </div>
+    <div class="flex flex-col gap-6">
+      <p-skeleton height="130px" borderRadius="12px" />
+      <p-skeleton height="130px" borderRadius="12px" />
+    </div>
+  </div>
+  <div class="card p-6 mb-6">
+    <p-skeleton width="10rem" height="1.25rem" styleClass="mb-4" />
+    <div class="flex flex-wrap gap-2.5">
+      <p-skeleton *ngFor="let _ of [1,2,3,4]" width="5rem" height="1.75rem" borderRadius="999px" />
+    </div>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="!loading && profile">
   <div class="card bg-gradient-to-r from-[#F606BA] to-[#8B2FC9] !border-0 p-8 flex justify-between items-end text-white mb-6 min-h-[120px]">
     <div class="flex items-center gap-4">
       <div class="w-16 h-16 bg-white text-brand rounded-lg flex items-center justify-center text-[22px] font-bold">{{ profile.avatarInitials }}</div>

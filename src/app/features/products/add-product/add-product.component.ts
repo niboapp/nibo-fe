@@ -7,6 +7,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { DatePickerModule } from 'primeng/datepicker';
 import { TextareaModule } from 'primeng/textarea';
 import { ButtonModule } from 'primeng/button';
+import { SkeletonModule } from 'primeng/skeleton';
 import { MessageService } from 'primeng/api';
 import { PageHeaderComponent } from '../../../core/layout/page-header/page-header.component';
 import { ProductsService } from '../../../core/services/products.service';
@@ -16,7 +17,7 @@ import { Product } from '../../../core/models/product.model';
   selector: 'app-add-product',
   imports: [
     CommonModule, ReactiveFormsModule,
-    InputTextModule, InputNumberModule, DatePickerModule, TextareaModule, ButtonModule,
+    InputTextModule, InputNumberModule, DatePickerModule, TextareaModule, ButtonModule, SkeletonModule,
     PageHeaderComponent
   ],
   templateUrl: './add-product.component.html'
@@ -26,6 +27,7 @@ export class AddProductComponent implements OnInit {
   imagePreviewUrl: string | null = null;
   selectedFile: File | null = null;
   loading = false;
+  fetching = false;
 
   productId: string | null = null;
   get isEditMode(): boolean {
@@ -54,9 +56,21 @@ export class AddProductComponent implements OnInit {
   ngOnInit(): void {
     this.productId = this.route.snapshot.paramMap.get('id');
     if (this.productId) {
-      this.productsService.getProduct(this.productId).subscribe(product => {
-        this.form.patchValue(product);
-        this.imagePreviewUrl = product.imageUrl || null;
+      this.fetching = true;
+      this.productsService.getProduct(this.productId).subscribe({
+        next: (product) => {
+          this.form.patchValue(product);
+          this.imagePreviewUrl = product.imageUrl || null;
+          this.fetching = false;
+        },
+        error: (err) => {
+          this.fetching = false;
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Unable to load product',
+            detail: err?.error?.message || 'Something went wrong. Please try again.'
+          });
+        }
       });
     }
   }

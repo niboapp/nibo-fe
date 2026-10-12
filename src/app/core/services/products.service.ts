@@ -6,6 +6,12 @@ import { ApiResponse } from '../models/auth.model';
 import { Product, ProductRecord, ProductsPage } from '../models/product.model';
 import { ProductPerformanceCard } from '../models/dashboard.model';
 
+export interface ProductStats {
+  totalProducts: number;
+  totalQuantity: number;
+  grossValue: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ProductsService {
   private http = inject(HttpClient);
@@ -32,6 +38,21 @@ export class ProductsService {
             skip: pager.skip ?? 0,
           };
         })
+      );
+  }
+
+  // GET /v1/products/stats — aggregate counts/value for the stat cards
+  getProductStats(): Observable<ProductStats> {
+    return this.http
+      .get<ApiResponse<{ total_products?: number; total_quantity?: number; gross_value?: number }>>(
+        `${this.baseUrl}/stats`
+      )
+      .pipe(
+        map(res => ({
+          totalProducts: res.data?.total_products ?? 0,
+          totalQuantity: res.data?.total_quantity ?? 0,
+          grossValue: res.data?.gross_value ?? 0,
+        }))
       );
   }
 

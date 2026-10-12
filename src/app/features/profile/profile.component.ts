@@ -6,13 +6,14 @@ import { ButtonModule } from 'primeng/button';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { ChipsModule } from 'primeng/chips';
 import { TagModule } from 'primeng/tag';
+import { SkeletonModule } from 'primeng/skeleton';
 import { MessageService } from 'primeng/api';
 import { BusinessProfile } from '../../core/models/profile.model';
 import { ProfileService } from '../../core/services/profile.service';
 
 @Component({
   selector: 'app-profile',
-  imports: [CommonModule, FormsModule, InputTextModule, ButtonModule, ProgressBarModule, ChipsModule, TagModule],
+  imports: [CommonModule, FormsModule, InputTextModule, ButtonModule, ProgressBarModule, ChipsModule, TagModule, SkeletonModule],
   templateUrl: './profile.component.html'
 })
 export class ProfileComponent implements OnInit {
@@ -20,6 +21,7 @@ export class ProfileComponent implements OnInit {
   editableProfile!: BusinessProfile;
   isEditing = false;
   saving = false;
+  loading = true;
 
   constructor(
     private profileService: ProfileService,
@@ -31,8 +33,10 @@ export class ProfileComponent implements OnInit {
       next: (data) => {
         this.profile = data;
         this.editableProfile = { ...data, productCategories: [...data.productCategories] };
+        this.loading = false;
       },
       error: (err) => {
+        this.loading = false;
         this.messageService.add({
           severity: 'error',
           summary: 'Unable to load profile',

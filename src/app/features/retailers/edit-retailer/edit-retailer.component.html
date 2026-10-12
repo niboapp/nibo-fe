@@ -1,6 +1,12 @@
 <app-page-header title="Edit Retailer" [subtitle]="retailerName" [showBack]="true" (back)="goBack()"></app-page-header>
 
-<form class="card p-6 mb-6" [formGroup]="form" (ngSubmit)="update()">
+<div class="card p-6 mb-6" *ngIf="fetching">
+  <div class="grid grid-cols-3 gap-5">
+    <p-skeleton *ngFor="let _ of [1,2,3]" height="2.75rem" />
+  </div>
+</div>
+
+<form *ngIf="!fetching" class="card p-6 mb-6" [formGroup]="form" (ngSubmit)="update()">
   <div class="grid grid-cols-3 gap-5">
     <div>
       <label class="field-label">Name</label>

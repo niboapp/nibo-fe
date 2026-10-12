@@ -3,6 +3,13 @@ export interface Retailer {
   name: string;
   location: string;
   phoneNumber: string;
+  status?: string;
+}
+
+export interface RetailerStats {
+  total: number;
+  active: number;
+  inactive: number;
 }
 
 // RetailerRecord mirrors the backend retailer document (snake_case JSON attrs).

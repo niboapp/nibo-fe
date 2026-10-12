@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Observable, delay, of } from 'rxjs';
 import {
   StatMetric, VisitPoint, StateVisit, DemandGapRow,
   ProductPerformanceCard, TrafficSourceSlice, TrafficPerformanceRow, LgaVisit, RetailerDiscoveryRow
@@ -12,13 +12,13 @@ export class DashboardService {
 
   // TODO(backend): replace each `of(...)` with a real HttpClient call.
   getStats(): Observable<StatMetric[]> {
-    return of([
+    return of<StatMetric[]>([
       { key: 'totalVisits', label: 'Total Visits', value: '18,420', changePercent: 12.4, colorClass: 'teal' },
       { key: 'productViews', label: 'Product Views', value: '42,310', changePercent: 8.7, colorClass: 'purple' },
       { key: 'onlineOrders', label: 'Online Orders', value: '156', changePercent: 3.2, colorClass: 'green' },
       { key: 'demandGrowth', label: 'Demand Growth', value: '15.8%', changePercent: 2.1, colorClass: 'orange' },
       { key: 'retailerClicks', label: 'Retailer Clicks', value: '6,840', changePercent: 18.3, colorClass: 'blue' },
-    ]);
+    ]).pipe(delay(300));
   }
   // TODO(backend): GET /dashboard/visit-trend
   getVisitTrend(): Observable<VisitPoint[]> {
@@ -36,9 +36,9 @@ export class DashboardService {
       { date: 'Jan 24', searches: 720, retailerClicks: 460 },
       { date: 'Jan 26', searches: 550, retailerClicks: 1390 },
       { date: 'Jan 30', searches: 640, retailerClicks: 1350 },
-    ]);
+    ]).pipe(delay(300));
   }
-  getStateVisits(): Observable<StateVisit[]> { return of([]); }
+  getStateVisits(): Observable<StateVisit[]> { return of([]).pipe(delay(300)); }
   // TODO(backend): GET /dashboard/demand-gap
   getDemandGap(): Observable<DemandGapRow[]> {
     return of([
@@ -48,7 +48,7 @@ export class DashboardService {
       { state: 'Lagos', visits: 980, retailers: 4, demandPerRetailer: 245 },
       { state: 'Rivers', visits: 650, retailers: 3, demandPerRetailer: 217 },
       { state: 'Abia', visits: 540, retailers: 2, demandPerRetailer: 270 },
-    ]);
+    ]).pipe(delay(300));
   }
   // TODO(backend): GET /dashboard/product-performance — replace with the dashboard endpoint
   getProductPerformance(): Observable<ProductPerformanceCard[]> {
@@ -62,7 +62,7 @@ export class DashboardService {
       { label: 'Influencer Campaign', percent: 18, color: '#F79009' },
       { label: 'Paid Ads', percent: 12, color: '#12B76A' },
       { label: 'Referral Links', percent: 17, color: '#3B82F6' },
-    ]);
+    ]).pipe(delay(300));
   }
   // TODO(backend): GET /dashboard/traffic-performance
   getTrafficPerformance(): Observable<TrafficPerformanceRow[]> {
@@ -72,7 +72,7 @@ export class DashboardService {
       { source: 'Paid Ads', searches: 3200, clicks: 12, clickRate: 267 },
       { source: 'Referral Links', searches: 980, clicks: 4, clickRate: 245 },
       { source: 'Influencer Campaigns', searches: 650, clicks: 3, clickRate: 217 },
-    ]);
+    ]).pipe(delay(300));
   }
   // TODO(backend): GET /dashboard/retailer-discovery
   getRetailerDiscovery(): Observable<RetailerDiscoveryRow[]> {
@@ -82,10 +82,10 @@ export class DashboardService {
       { retailer: 'Justrite Ibadan', location: 'Oyo', clicks: 160, shareOfDemandPercent: 5 },
       { retailer: 'Market Square', location: 'Rivers', clicks: 86, shareOfDemandPercent: 7 },
       { retailer: 'Addide Supermarket', location: 'Lagos', clicks: 55, shareOfDemandPercent: 11 },
-    ]);
+    ]).pipe(delay(300));
   }
   getLgaVisits(state: string): Observable<LgaVisit[]> {
   // TODO(backend): GET /dashboard/states/:state/lgas
-  return of([]);
+  return of([]).pipe(delay(300));
   }
 }

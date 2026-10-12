@@ -8,6 +8,8 @@ import { SelectModule } from 'primeng/select';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { ProgressBarModule } from 'primeng/progressbar';
+import { SkeletonModule } from 'primeng/skeleton';
+import { MessageService } from 'primeng/api';
 
 import { PageHeaderComponent } from '../../core/layout/page-header/page-header.component';
 import { StatCardComponent } from './components/stat-card/stat-card.component';
@@ -26,12 +28,13 @@ import {
   selector: 'app-dashboard',
   imports: [
     CommonModule, FormsModule, RouterLink,
-    SelectModule, ButtonModule, TableModule, ProgressBarModule,
+    SelectModule, ButtonModule, TableModule, ProgressBarModule, SkeletonModule,
     PageHeaderComponent, StatCardComponent, VisitsChartComponent, DonutChartComponent, GeoDemandComponent
   ],
   templateUrl: './dashboard.component.html'
 })
 export class DashboardComponent implements OnInit {
+  loading = true;
   stats: StatMetric[] = [];
   visitTrend: VisitPoint[] = [];
   stateVisits: StateVisit[] = [];
@@ -59,7 +62,8 @@ export class DashboardComponent implements OnInit {
 
   constructor(
     private dashboardService: DashboardService,
-    private authService: AuthService
+    private authService: AuthService,
+    private messageService: MessageService
   ) {}
 
   ngOnInit(): void {
@@ -74,15 +78,26 @@ export class DashboardComponent implements OnInit {
       trafficSources: this.dashboardService.getTrafficSources(),
       trafficPerformance: this.dashboardService.getTrafficPerformance(),
       retailerDiscovery: this.dashboardService.getRetailerDiscovery(),
-    }).subscribe(result => {
-      this.stats = result.stats;
-      this.visitTrend = result.visitTrend;
-      this.stateVisits = result.stateVisits;
-      this.demandGap = result.demandGap;
-      this.productPerformance = result.productPerformance;
-      this.trafficSources = result.trafficSources;
-      this.trafficPerformance = result.trafficPerformance;
-      this.retailerDiscovery = result.retailerDiscovery;
+    }).subscribe({
+      next: (result) => {
+        this.stats = result.stats;
+        this.visitTrend = result.visitTrend;
+        this.stateVisits = result.stateVisits;
+        this.demandGap = result.demandGap;
+        this.productPerformance = result.productPerformance;
+        this.trafficSources = result.trafficSources;
+        this.trafficPerformance = result.trafficPerformance;
+        this.retailerDiscovery = result.retailerDiscovery;
+        this.loading = false;
+      },
+      error: (err) => {
+        this.loading = false;
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Unable to load dashboard',
+          detail: err?.error?.message || 'Something went wrong. Please try again.'
+        });
+      }
     });
   }
 

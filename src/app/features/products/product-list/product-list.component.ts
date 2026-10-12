@@ -14,7 +14,7 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { ConfirmationService, MenuItem, MessageService } from 'primeng/api';
 import { Product } from '../../../core/models/product.model';
 import { ProductPerformanceCard } from '../../../core/models/dashboard.model';
-import { ProductsService } from '../../../core/services/products.service';
+import { ProductsService, ProductStats } from '../../../core/services/products.service';
 import { PageHeaderComponent } from '../../../core/layout/page-header/page-header.component';
 import { ProductViewModalComponent } from '../components/product-view-modal/product-view-modal.component';
 
@@ -33,6 +33,8 @@ type ProductTab = 'list' | 'performance';
 export class ProductListComponent implements OnInit {
   products: Product[] = [];
   productTotal = 0;
+  stats: ProductStats = { totalProducts: 0, totalQuantity: 0, grossValue: 0 };
+  loadingStats = true;
   loadingProducts = true;
   skeletonRows: Product[] = new Array(5).fill({} as Product);
   performanceCards: ProductPerformanceCard[] = [];
@@ -73,7 +75,19 @@ export class ProductListComponent implements OnInit {
       }
     });
     this.loadProducts();
+    this.loadStats();
     this.productsService.getProductPerformance().subscribe(data => (this.performanceCards = data));
+  }
+
+  loadStats(): void {
+    this.loadingStats = true;
+    this.productsService.getProductStats().subscribe({
+      next: (stats) => {
+        this.stats = stats;
+        this.loadingStats = false;
+      },
+      error: () => (this.loadingStats = false)
+    });
   }
 
   loadProducts(): void {
@@ -153,6 +167,7 @@ export class ProductListComponent implements OnInit {
             this.productFirst = Math.max(0, this.productFirst - this.productPageSize);
           }
           this.loadProducts();
+          this.loadStats();
         });
       }
     });

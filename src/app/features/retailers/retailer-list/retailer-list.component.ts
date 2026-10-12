@@ -11,17 +11,18 @@ import { MenuModule } from 'primeng/menu';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 import { SkeletonModule } from 'primeng/skeleton';
 import { ConfirmationService, MenuItem, MessageService } from 'primeng/api';
-import { Retailer } from '../../../core/models/retailer.model';
+import { Retailer, RetailerStats } from '../../../core/models/retailer.model';
 import { RetailersService } from '../../../core/services/retailers.service';
 import { PageHeaderComponent } from '../../../core/layout/page-header/page-header.component';
 import { RetailerViewModalComponent } from '../components/retailer-view-modal/retailer-view-modal.component';
+import { BadgeModule } from 'primeng/badge';
 
 @Component({
   selector: 'app-retailer-list',
   imports: [
     CommonModule, FormsModule, RouterLink,
     TableModule, ButtonModule, IconFieldModule, InputIconModule, InputTextModule, MenuModule,
-    PaginatorModule, SkeletonModule,
+    PaginatorModule, SkeletonModule, BadgeModule,
     PageHeaderComponent, RetailerViewModalComponent
   ],
   templateUrl: './retailer-list.component.html'
@@ -30,6 +31,8 @@ export class RetailerListComponent implements OnInit {
   retailers: Retailer[] = [];
   retailerTotal = 0;
   loading = true;
+  loadingStats = true;
+  stats: RetailerStats = { total: 0, active: 0, inactive: 0 };
   searchTerm = '';
   pageSize = 10;
   first = 0;
@@ -48,12 +51,25 @@ export class RetailerListComponent implements OnInit {
     this.menuItems = [
       { label: 'View', icon: 'pi pi-eye', command: () => this.selectedRetailer && this.viewRetailer(this.selectedRetailer) },
       { label: 'Edit', icon: 'pi pi-pencil', command: () => this.selectedRetailer && this.router.navigate(['/app/retailers', this.selectedRetailer.id, 'edit']) },
+      { label: 'Deactivate', icon: 'pi pi-power-off', command: () => this.selectedRetailer && this.toggleStatus(this.selectedRetailer) },
       { label: 'Delete', icon: 'pi pi-trash', command: () => this.selectedRetailer && this.requestDelete(this.selectedRetailer.id) }
     ];
   }
 
   ngOnInit(): void {
     this.loadRetailers();
+    this.loadStats();
+  }
+
+  loadStats(): void {
+    this.loadingStats = true;
+    this.retailersService.getRetailerStats().subscribe({
+      next: (stats) => {
+        this.stats = stats;
+        this.loadingStats = false;
+      },
+      error: () => (this.loadingStats = false)
+    });
   }
 
   loadRetailers(): void {
@@ -99,7 +115,45 @@ export class RetailerListComponent implements OnInit {
 
   openMenu(event: Event, menu: { toggle: (e: Event) => void }, retailer: Retailer): void {
     this.selectedRetailer = retailer;
+    // reflect the retailer's current status before the menu renders
+    this.menuItems[2].label = retailer.status === 'ACTIVE' ? 'Deactivate' : 'Activate';
     menu.toggle(event);
+  }
+
+  toggleStatus(retailer: Retailer): void {
+    const deactivating = retailer.status === 'ACTIVE';
+    this.confirmationService.confirm({
+      message: deactivating
+        ? `Deactivate ${retailer.name}? They'll no longer appear as an active retailer. You can reactivate them anytime.`
+        : `Reactivate ${retailer.name}? They'll show up as an active retailer again.`,
+      acceptLabel: deactivating ? 'Deactivate' : 'Activate',
+      rejectLabel: 'Cancel',
+      accept: () => {
+        this.retailersService
+          .updateRetailerStatus(retailer.id, deactivating ? 'DEACTIVATED' : 'ACTIVE')
+          .subscribe({
+            next: () => {
+              this.loadRetailers();
+              this.loadStats();
+            },
+            error: (err) => {
+              this.messageService.add({
+                severity: 'error',
+                summary: 'Unable to update status',
+                detail: err?.error?.message || 'Something went wrong. Please try again.'
+              });
+            }
+          });
+      }
+    });
+  }
+
+  statusLabel(retailer: Retailer): string {
+    return retailer.status === 'ACTIVE' ? 'Active' : 'Deactivated';
+  }
+
+  statusSeverity(retailer: Retailer): 'success' | 'danger' {
+    return retailer.status === 'ACTIVE' ? 'success' : 'danger';
   }
 
   viewRetailer(retailer: Retailer): void {
@@ -118,6 +172,7 @@ export class RetailerListComponent implements OnInit {
             this.first = Math.max(0, this.first - this.pageSize);
           }
           this.loadRetailers();
+          this.loadStats();
         });
       }
     });

@@ -2,6 +2,36 @@
   <p-button label="Add Product" icon="pi pi-plus" routerLink="/app/products/add" />
 </app-page-header>
 
+<div class="flex gap-4 mb-6">
+  <div style="border: 1px solid gainsboro;" class="bg-[#FFFFFF] rounded-xl p-4 flex items-center gap-3">
+    <span class="w-9 h-9 rounded-lg bg-brand-light flex items-center justify-center text-brand"><i
+        class="pi pi-box"></i></span>
+    <div>
+      <p-skeleton *ngIf="loadingStats" width="4rem" height="1.5rem" styleClass="block" />
+      <strong *ngIf="!loadingStats" class="text-lg block">{{ stats.totalProducts | number }}</strong>
+      <p class="text-xs text-ink-2 mt-0.5 mb-0">Total No of Products</p>
+    </div>
+  </div>
+  <div style="border: 1px solid gainsboro;" class="bg-[#FFFFFF] rounded-xl p-4 flex items-center gap-3">
+    <span class="w-9 h-9 rounded-lg bg-brand-light flex items-center justify-center text-brand"><i
+        class="pi pi-database"></i></span>
+    <div>
+      <p-skeleton *ngIf="loadingStats" width="4rem" height="1.5rem" styleClass="block" />
+      <strong *ngIf="!loadingStats" class="text-lg block">{{ stats.totalQuantity | number }}</strong>
+      <p class="text-xs text-ink-2 mt-0.5 mb-0">Total Product Quantity</p>
+    </div>
+  </div>
+  <div style="border: 1px solid gainsboro;" class="bg-[#FFFFFF] rounded-xl p-4 flex items-center gap-3">
+    <span class="w-9 h-9 rounded-lg bg-brand-light flex items-center justify-center text-brand"><i
+        class="pi pi-money-bill"></i></span>
+    <div>
+      <p-skeleton *ngIf="loadingStats" width="6rem" height="1.5rem" styleClass="block" />
+      <strong *ngIf="!loadingStats" class="text-lg block">₦{{ stats.grossValue | number }}</strong>
+      <p class="text-xs text-ink-2 mt-0.5 mb-0">Gross Value of Products</p>
+    </div>
+  </div>
+</div>
+
 <div class="card p-6">
   <p-tabs [(value)]="activeTab">
     <p-tablist>

@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, delay, map, of } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../models/auth.model';
-import { Retailer, RetailerRecord, RetailersPage } from '../models/retailer.model';
+import { Retailer, RetailerRecord, RetailerStats, RetailersPage } from '../models/retailer.model';
 import { RetailerChainResult } from '../models/retailer-chain-result.model';
 
 @Injectable({ providedIn: 'root' })
@@ -47,6 +47,13 @@ export class RetailersService {
       .pipe(map(res => (res.data ?? []).map(toRetailer)));
   }
 
+  // GET /v1/retailers/stats — total/active/inactive counts
+  getRetailerStats(): Observable<RetailerStats> {
+    return this.http
+      .get<ApiResponse<RetailerStats>>(`${this.baseUrl}/stats`)
+      .pipe(map(res => res.data ?? { total: 0, active: 0, inactive: 0 }));
+  }
+
   getRetailer(id: string): Observable<Retailer> {
     return this.http
       .get<ApiResponse<RetailerRecord>>(`${this.baseUrl}/${id}`)
@@ -56,6 +63,13 @@ export class RetailersService {
   updateRetailer(id: string, changes: Partial<Retailer>): Observable<Retailer> {
     return this.http
       .put<ApiResponse<RetailerRecord>>(`${this.baseUrl}/${id}`, toRecord(changes))
+      .pipe(map(res => toRetailer(res.data ?? {} as RetailerRecord)));
+  }
+
+  // PATCH /v1/retailers/{id}/status — status is 'ACTIVE' or 'DEACTIVATED'
+  updateRetailerStatus(id: string, status: 'ACTIVE' | 'DEACTIVATED'): Observable<Retailer> {
+    return this.http
+      .patch<ApiResponse<RetailerRecord>>(`${this.baseUrl}/${id}/status`, { status })
       .pipe(map(res => toRetailer(res.data ?? {} as RetailerRecord)));
   }
 
@@ -78,6 +92,7 @@ function toRetailer(record: RetailerRecord): Retailer {
     name: record.name ?? '',
     location: record.address ?? '',
     phoneNumber: record.phone_number ?? '',
+    status: record.status ?? 'ACTIVE',
   };
 }
 

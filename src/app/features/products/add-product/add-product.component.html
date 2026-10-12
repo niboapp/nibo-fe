@@ -5,7 +5,22 @@
   (back)="goBack()"
 ></app-page-header>
 
-<form class="card p-8" [formGroup]="form" (ngSubmit)="submit()">
+<div class="card p-8" *ngIf="fetching">
+  <div class="grid grid-cols-[1fr_auto_1fr] gap-8">
+    <div class="flex flex-col gap-5">
+      <p-skeleton height="2.75rem" />
+      <p-skeleton height="9rem" />
+      <p-skeleton height="5rem" />
+      <p-skeleton height="2.75rem" />
+    </div>
+    <div class="w-px bg-line"></div>
+    <div class="flex flex-col gap-5">
+      <p-skeleton *ngFor="let _ of [1,2,3,4,5]" height="2.75rem" />
+    </div>
+  </div>
+</div>
+
+<form *ngIf="!fetching" class="card p-8" [formGroup]="form" (ngSubmit)="submit()">
   <div class="grid grid-cols-[1fr_auto_1fr] gap-8">
     <div class="flex flex-col gap-5">
       <div>

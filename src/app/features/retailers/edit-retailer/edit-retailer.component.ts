@@ -4,13 +4,14 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ActivatedRoute, Router } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
+import { SkeletonModule } from 'primeng/skeleton';
 import { PageHeaderComponent } from '../../../core/layout/page-header/page-header.component';
 import { MessageService } from 'primeng/api';
 import { RetailersService } from '../../../core/services/retailers.service';
 
 @Component({
   selector: 'app-edit-retailer',
-  imports: [CommonModule, ReactiveFormsModule, InputTextModule, ButtonModule, PageHeaderComponent],
+  imports: [CommonModule, ReactiveFormsModule, InputTextModule, ButtonModule, SkeletonModule, PageHeaderComponent],
   templateUrl: './edit-retailer.component.html'
 })
 export class EditRetailerComponent implements OnInit {
@@ -18,6 +19,7 @@ export class EditRetailerComponent implements OnInit {
   retailerId = '';
   retailerName = '';
   loading = false;
+  fetching = true;
 
   constructor(
     private fb: FormBuilder,
@@ -35,9 +37,20 @@ export class EditRetailerComponent implements OnInit {
 
   ngOnInit(): void {
     this.retailerId = this.route.snapshot.paramMap.get('id') ?? '';
-    this.retailersService.getRetailer(this.retailerId).subscribe(retailer => {
-      this.retailerName = retailer.name;
-      this.form.patchValue(retailer);
+    this.retailersService.getRetailer(this.retailerId).subscribe({
+      next: (retailer) => {
+        this.retailerName = retailer.name;
+        this.form.patchValue(retailer);
+        this.fetching = false;
+      },
+      error: (err) => {
+        this.fetching = false;
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Unable to load retailer',
+          detail: err?.error?.message || 'Something went wrong. Please try again.'
+        });
+      }
     });
   }
 
