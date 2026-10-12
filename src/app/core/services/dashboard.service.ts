@@ -1,14 +1,15 @@
 import { Injectable } from '@angular/core';
-import { Observable, delay, of } from 'rxjs';
+import { Observable, delay, map, of } from 'rxjs';
 import {
   StatMetric, VisitPoint, StateVisit, DemandGapRow,
   ProductPerformanceCard, TrafficSourceSlice, TrafficPerformanceRow, LgaVisit, RetailerDiscoveryRow
 } from '../models/dashboard.model';
 import { ProductsService } from './products.service';
+import { NigeriaGeoService } from './nigeria-geo.service';
 
 @Injectable({ providedIn: 'root' })
 export class DashboardService {
-  constructor(private productsService: ProductsService) {}
+  constructor(private productsService: ProductsService, private nigeriaGeo: NigeriaGeoService) {}
 
   // TODO(backend): replace each `of(...)` with a real HttpClient call.
   // TODO(backend): GET /dashboard/stats — the five metric definitions are the
@@ -70,14 +71,15 @@ export class DashboardService {
     return of([]).pipe(delay(300));
   }
 
-  // TODO(backend): GET /dashboard/states/:state/lgas
+  // TODO(backend): GET /dashboard/states/:state/lgas — real LGA names from
+  // nigeria-states-lgas.json; visit counts are deterministic placeholders
   getLgaVisits(state: string): Observable<LgaVisit[]> {
-    return of<LgaVisit[]>([
-      { lga: 'Ikeja', visits: 720 },
-      { lga: 'Lagos Island', visits: 560 },
-      { lga: 'Epe', visits: 300 },
-      { lga: 'Ikorodu', visits: 210 },
-      { lga: 'Badagry', visits: 160 },
-    ]).pipe(delay(300));
+    return this.nigeriaGeo.getLgaNames(state).pipe(
+      map(names => names.map(lga => ({
+        lga,
+        visits: 40 + ((lga.length * 37) % 700)
+      }))),
+      delay(300)
+    );
   }
 }

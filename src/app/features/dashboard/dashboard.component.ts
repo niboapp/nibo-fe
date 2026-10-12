@@ -17,6 +17,7 @@ import { VisitsChartComponent } from './components/visits-chart/visits-chart.com
 import { DonutChartComponent } from './components/donut-chart/donut-chart.component';
 import { GeoDemandComponent } from './components/geo-demand/geo-demand.component';
 import { DashboardService } from '../../core/services/dashboard.service';
+import { NigeriaGeoService } from '../../core/services/nigeria-geo.service';
 import { AuthService } from '../../core/services/auth.service';
 import { orgCompleteness } from '../../core/services/profile.service';
 import {
@@ -55,19 +56,24 @@ export class DashboardComponent implements OnInit {
   lgaFilter = 'LGA';
 
   readonly dateRangeOptions = ['Last 7 days', 'Last 14 days', 'Last 30 days', 'Last 60 days', 'Last 90 days'];
-  readonly stateOptions = ['All States'];
-  readonly lgaOptions = ['LGA'];
+  stateOptions = ['All States'];
+  lgaOptions = ['LGA'];
 
   profileCompleteness = 100;
 
   constructor(
     private dashboardService: DashboardService,
+    private nigeriaGeo: NigeriaGeoService,
     private authService: AuthService,
     private messageService: MessageService
   ) {}
 
   ngOnInit(): void {
     this.profileCompleteness = orgCompleteness(this.authService.currentUser()?.organization);
+
+    this.nigeriaGeo.getStateNames().subscribe(names => {
+      this.stateOptions = ['All States', ...names];
+    });
 
     forkJoin({
       stats: this.dashboardService.getStats(),
@@ -104,6 +110,17 @@ export class DashboardComponent implements OnInit {
   onSelectState(state: string): void {
     this.drilldownState = state;
     this.dashboardService.getLgaVisits(state).subscribe(data => (this.lgaVisits = data));
+  }
+
+  onStateFilterChange(state: string): void {
+    this.lgaFilter = 'LGA';
+    if (state === 'All States') {
+      this.lgaOptions = ['LGA'];
+      return;
+    }
+    this.nigeriaGeo.getLgaNames(state).subscribe(names => {
+      this.lgaOptions = ['LGA', ...names];
+    });
   }
 
   onClearDrilldown(): void {

@@ -1,6 +1,6 @@
 <app-page-header title="Overview" subtitle="Demand & distribution intelligence">
   <p-select [options]="dateRangeOptions" [(ngModel)]="dateRange" styleClass="w-36" />
-  <p-select [options]="stateOptions" [(ngModel)]="stateFilter" styleClass="w-32" />
+  <p-select [options]="stateOptions" [(ngModel)]="stateFilter" (ngModelChange)="onStateFilterChange($event)" styleClass="w-32" />
   <p-button label="Export" icon="pi pi-download" (onClick)="exportData()" />
 </app-page-header>
 

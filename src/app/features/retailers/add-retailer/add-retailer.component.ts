@@ -15,6 +15,7 @@ import { MessageService } from 'primeng/api';
 import { RetailersService } from '../../../core/services/retailers.service';
 import { RetailerChainResult } from '../../../core/models/retailer-chain-result.model';
 import { GooglePlacesAutocompleteDirective } from '../../../shared/directives/google-places-autocomplete.directive';
+import { NigeriaGeoService } from '../../../core/services/nigeria-geo.service';
 declare var google: any;
 
 @Component({
@@ -62,9 +63,7 @@ export class AddRetailerComponent implements AfterViewInit {
   searchTerm = '';
   selectedPlaceAddress = '';
   stateFilter = 'All States';
-  readonly stateOptions = [
-    'All States', 'Lagos', 'Kano', 'Katsina', 'Kebbi', 'Kogi', 'Kwara', 'Nasarawa', 'Niger', 'Ogun', 'Ondo'
-  ];
+  stateOptions = ['All States'];
   searchResults: RetailerChainResult[] = [];
   hasSearched = false;
   selectedResultIds = new Set<string>();
@@ -75,11 +74,15 @@ export class AddRetailerComponent implements AfterViewInit {
   constructor(
     private fb: FormBuilder,
     private retailersService: RetailersService,
+    private nigeriaGeo: NigeriaGeoService,
     private messageService: MessageService,
     private router: Router
   ) {
     this.manualForm = this.fb.group({
       rows: this.fb.array([this.createRow()])
+    });
+    this.nigeriaGeo.getStateNames().subscribe(names => {
+      this.stateOptions = ['All States', ...names];
     });
   }
 
