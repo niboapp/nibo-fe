@@ -12,6 +12,7 @@ import { MenuModule } from 'primeng/menu';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 import { SkeletonModule } from 'primeng/skeleton';
 import { ConfirmationService, MenuItem, MessageService } from 'primeng/api';
+import { Subject, debounceTime } from 'rxjs';
 import { Product } from '../../../core/models/product.model';
 import { ProductPerformanceCard } from '../../../core/models/dashboard.model';
 import { ProductsService, ProductStats } from '../../../core/services/products.service';
@@ -49,6 +50,8 @@ export class ProductListComponent implements OnInit {
 
   activeTab: ProductTab = 'list';
 
+  private searchChanged = new Subject<void>();
+
   viewingProduct: Product | null = null;
   selectedProduct: Product | null = null;
 
@@ -77,6 +80,11 @@ export class ProductListComponent implements OnInit {
     this.loadProducts();
     this.loadStats();
     this.productsService.getProductPerformance().subscribe(data => (this.performanceCards = data));
+    this.searchChanged.pipe(debounceTime(350)).subscribe(() => {
+      this.productFirst = 0;
+      this.performanceFirst = 0;
+      this.loadProducts();
+    });
   }
 
   loadStats(): void {
@@ -92,8 +100,9 @@ export class ProductListComponent implements OnInit {
 
   loadProducts(): void {
     this.loadingProducts = true;
+    const term = this.searchTerm.trim();
     this.productsService
-      .getProducts({ limit: this.productPageSize, skip: this.productFirst })
+      .getProducts({ limit: this.productPageSize, skip: this.productFirst, ...(term ? { search: term } : {}) })
       .subscribe({
         next: (page) => {
           this.products = page.items;
@@ -111,17 +120,8 @@ export class ProductListComponent implements OnInit {
       });
   }
 
-  // server-side paging returns one page at a time — search filters the loaded page
-  get filteredProducts(): Product[] {
-    const term = this.searchTerm.trim().toLowerCase();
-    if (!term) return this.products;
-    return this.products.filter(p =>
-      p.name.toLowerCase().includes(term) ||
-      p.description.toLowerCase().includes(term) ||
-      p.batchNumber.toLowerCase().includes(term)
-    );
-  }
-
+  // the products table is server-searched; performance cards are local data
+  // until a backend analytics endpoint exists, so they filter client-side
   get filteredPerformanceCards(): ProductPerformanceCard[] {
     const term = this.searchTerm.trim().toLowerCase();
     if (!term) return this.performanceCards;
@@ -133,8 +133,7 @@ export class ProductListComponent implements OnInit {
   }
 
   onSearch(): void {
-    this.productFirst = 0;
-    this.performanceFirst = 0;
+    this.searchChanged.next();
   }
 
   onProductPageChange(event: PaginatorState): void {

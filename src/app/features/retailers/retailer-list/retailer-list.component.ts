@@ -11,6 +11,7 @@ import { MenuModule } from 'primeng/menu';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 import { SkeletonModule } from 'primeng/skeleton';
 import { ConfirmationService, MenuItem, MessageService } from 'primeng/api';
+import { Subject, debounceTime } from 'rxjs';
 import { Retailer, RetailerStats } from '../../../core/models/retailer.model';
 import { RetailersService } from '../../../core/services/retailers.service';
 import { PageHeaderComponent } from '../../../core/layout/page-header/page-header.component';
@@ -42,6 +43,8 @@ export class RetailerListComponent implements OnInit {
   selectedRetailer: Retailer | null = null;
   showImportModal = false;
 
+  private searchChanged = new Subject<void>();
+
   menuItems: MenuItem[];
 
   constructor(
@@ -61,6 +64,10 @@ export class RetailerListComponent implements OnInit {
   ngOnInit(): void {
     this.loadRetailers();
     this.loadStats();
+    this.searchChanged.pipe(debounceTime(350)).subscribe(() => {
+      this.first = 0;
+      this.loadRetailers();
+    });
   }
 
   loadStats(): void {
@@ -76,8 +83,9 @@ export class RetailerListComponent implements OnInit {
 
   loadRetailers(): void {
     this.loading = true;
+    const term = this.searchTerm.trim();
     this.retailersService
-      .getRetailers({ limit: this.pageSize, skip: this.first })
+      .getRetailers({ limit: this.pageSize, skip: this.first, ...(term ? { search: term } : {}) })
       .subscribe({
         next: (page) => {
           this.retailers = page.items;
@@ -95,19 +103,8 @@ export class RetailerListComponent implements OnInit {
       });
   }
 
-  // server-side paging returns one page at a time — search filters the loaded page
-  get filteredRetailers(): Retailer[] {
-    const term = this.searchTerm.trim().toLowerCase();
-    if (!term) return this.retailers;
-    return this.retailers.filter(r =>
-      r.name.toLowerCase().includes(term) ||
-      r.location.toLowerCase().includes(term) ||
-      r.phoneNumber.includes(term)
-    );
-  }
-
   onSearch(): void {
-    this.first = 0;
+    this.searchChanged.next();
   }
 
   onPageChange(event: PaginatorState): void {

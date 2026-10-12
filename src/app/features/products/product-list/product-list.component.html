@@ -49,7 +49,7 @@
 
     <p-tabpanels>
       <p-tabpanel value="list">
-        <p-table [value]="loadingProducts ? skeletonRows : filteredProducts">
+        <p-table [value]="loadingProducts ? skeletonRows : products">
           <ng-template pTemplate="header">
             <tr>
               <th>Product Name</th>
