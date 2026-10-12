@@ -3,6 +3,7 @@ export interface Retailer {
   name: string;
   location: string;
   phoneNumber: string;
+  landmark?: string;
   status?: string;
 }
 
@@ -18,6 +19,7 @@ export interface RetailerRecord {
   organization_id?: string;
   name: string;
   address?: string;
+  landmark?: string;
   phone_number?: string;
   image_url?: string;
   state?: string;

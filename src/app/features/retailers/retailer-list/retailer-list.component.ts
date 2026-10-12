@@ -15,6 +15,7 @@ import { Retailer, RetailerStats } from '../../../core/models/retailer.model';
 import { RetailersService } from '../../../core/services/retailers.service';
 import { PageHeaderComponent } from '../../../core/layout/page-header/page-header.component';
 import { RetailerViewModalComponent } from '../components/retailer-view-modal/retailer-view-modal.component';
+import { ImportRetailersModalComponent } from '../components/import-retailers-modal/import-retailers-modal.component';
 import { BadgeModule } from 'primeng/badge';
 
 @Component({
@@ -23,7 +24,7 @@ import { BadgeModule } from 'primeng/badge';
     CommonModule, FormsModule, RouterLink,
     TableModule, ButtonModule, IconFieldModule, InputIconModule, InputTextModule, MenuModule,
     PaginatorModule, SkeletonModule, BadgeModule,
-    PageHeaderComponent, RetailerViewModalComponent
+    PageHeaderComponent, RetailerViewModalComponent, ImportRetailersModalComponent
   ],
   templateUrl: './retailer-list.component.html'
 })
@@ -39,6 +40,7 @@ export class RetailerListComponent implements OnInit {
   skeletonRows: Retailer[] = new Array(10).fill({} as Retailer);
   viewingRetailer: Retailer | null = null;
   selectedRetailer: Retailer | null = null;
+  showImportModal = false;
 
   menuItems: MenuItem[];
 
@@ -158,6 +160,18 @@ export class RetailerListComponent implements OnInit {
 
   viewRetailer(retailer: Retailer): void {
     this.viewingRetailer = retailer;
+  }
+
+  onImported(count: number): void {
+    this.showImportModal = false;
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Import complete',
+      detail: `${count} retailer${count === 1 ? '' : 's'} imported.`
+    });
+    this.first = 0;
+    this.loadRetailers();
+    this.loadStats();
   }
 
   requestDelete(id: string): void {

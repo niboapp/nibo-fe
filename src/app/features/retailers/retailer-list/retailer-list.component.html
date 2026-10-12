@@ -1,7 +1,9 @@
 <app-page-header title="List of Retailers" subtitle="Manage your existing retailers">
-  <p-button label="Import" icon="pi pi-download" [outlined]="true" />
+  <p-button label="Import" icon="pi pi-upload" [outlined]="true" (onClick)="showImportModal = true" />
   <p-button label="Add Retailer" icon="pi pi-plus" routerLink="/app/retailers/add" />
 </app-page-header>
+
+<app-import-retailers-modal *ngIf="showImportModal" (close)="showImportModal = false" (imported)="onImported($event)" />
 
 <div class="flex gap-4 mb-6">
   <div style="border: 1px solid gainsboro;" class="bg-[#FFFFFF] rounded-xl p-4 flex items-center gap-3">
@@ -46,6 +48,7 @@
       <tr>
         <th>Name</th>
         <th>Location</th>
+        <th>Closest Landmark</th>
         <th>Phone Number</th>
         <th>Status</th>
         <th>Actions</th>
@@ -60,6 +63,10 @@
         <td>
           <p-skeleton *ngIf="loading" height="1rem" />
           <ng-container *ngIf="!loading">{{ retailer.location }}</ng-container>
+        </td>
+        <td>
+          <p-skeleton *ngIf="loading" height="1rem" />
+          <ng-container *ngIf="!loading">{{ retailer.landmark || 'N/A' }}</ng-container>
         </td>
         <td>
           <p-skeleton *ngIf="loading" width="6rem" height="1rem" />

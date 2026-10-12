@@ -36,11 +36,12 @@ export class RetailersService {
   }
 
   // POST /v1/retailers — the endpoint accepts an array for bulk adds/imports
-  saveRetailers(rows: { name: string; location: string; phoneNumber: string }[]): Observable<Retailer[]> {
+  saveRetailers(rows: { name: string; location: string; phoneNumber: string; landmark?: string }[]): Observable<Retailer[]> {
     const records = rows.map(row => ({
       name: row.name,
       address: row.location,
       phone_number: row.phoneNumber,
+      landmark: row.landmark,
     }));
     return this.http
       .post<ApiResponse<RetailerRecord[]>>(this.baseUrl, records)
@@ -92,6 +93,7 @@ function toRetailer(record: RetailerRecord): Retailer {
     name: record.name ?? '',
     location: record.address ?? '',
     phoneNumber: record.phone_number ?? '',
+    landmark: record.landmark,
     status: record.status ?? 'ACTIVE',
   };
 }
