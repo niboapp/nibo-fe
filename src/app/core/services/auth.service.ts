@@ -73,6 +73,18 @@ export class AuthService {
       );
   }
 
+  // PUT /v1/users/{id}/password — server verifies old_password before updating
+  changePassword(oldPassword: string, newPassword: string): Observable<void> {
+    const user = this.currentUser();
+    if (!user?._id) return new Observable(sub => sub.error(new Error('Not logged in')));
+    return this.http
+      .put<ApiResponse<null>>(`${environment.apiUrl}/v1/users/${user._id}/password`, {
+        old_password: oldPassword,
+        new_password: newPassword,
+      })
+      .pipe(map(() => void 0));
+  }
+
   // merges fresh organization data into the stored session user
   updateOrganization(org: Organization): void {
     const user = this.currentUser();

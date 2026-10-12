@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { ProgressBarModule } from 'primeng/progressbar';
@@ -10,10 +11,12 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { MessageService } from 'primeng/api';
 import { BusinessProfile } from '../../core/models/profile.model';
 import { ProfileService } from '../../core/services/profile.service';
+import { AuthService } from '../../core/services/auth.service';
+import { ChangePasswordModalComponent } from './components/change-password-modal/change-password-modal.component';
 
 @Component({
   selector: 'app-profile',
-  imports: [CommonModule, FormsModule, InputTextModule, ButtonModule, ProgressBarModule, ChipsModule, TagModule, SkeletonModule],
+  imports: [CommonModule, FormsModule, InputTextModule, ButtonModule, ProgressBarModule, ChipsModule, TagModule, SkeletonModule, ChangePasswordModalComponent],
   templateUrl: './profile.component.html'
 })
 export class ProfileComponent implements OnInit {
@@ -22,10 +25,13 @@ export class ProfileComponent implements OnInit {
   isEditing = false;
   saving = false;
   loading = true;
+  showPasswordModal = false;
 
   constructor(
     private profileService: ProfileService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private authService: AuthService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -72,6 +78,17 @@ export class ProfileComponent implements OnInit {
         });
       }
     });
+  }
+
+  onPasswordChanged(): void {
+    this.showPasswordModal = false;
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Password changed',
+      detail: 'Your password was updated. Please log in again.'
+    });
+    this.authService.logout();
+    this.router.navigate(['/login']);
   }
 
   copyToClipboard(value: string): void {
