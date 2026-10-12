@@ -5,14 +5,15 @@
 <div class="card p-6 mb-6">
   <h2 class="text-[15px] font-bold m-0">Search Retailer Chain</h2>
   <p class="section-sub">Type a retailer name (e.g. "Jendol Supermarket") and filter by state to find all branches</p>
-  <div class="flex gap-3">
-    <p-iconfield class="flex-1">
-      <p-inputicon class="pi pi-search" />
-      <input pInputText type="text" placeholder="Search retailer name..." [(ngModel)]="searchTerm" class="w-full" />
-    </p-iconfield>
+  <div class="flex gap-3 items-start">
+    <gmp-place-autocomplete #chainPlaceSearch class="chain-place-search"
+      placeholder="Search a retailer or address — pick a suggestion"
+      (gmp-select)="onChainPlaceSelected($event)">
+    </gmp-place-autocomplete>
     <p-select [options]="stateOptions" [(ngModel)]="stateFilter" styleClass="w-40" />
     <p-button label="Search" icon="pi pi-search" (onClick)="searchChains()" />
   </div>
+  <p *ngIf="selectedPlaceAddress" class="text-xs text-ink-3 mt-2 mb-0">{{ selectedPlaceAddress }}</p>
 
   <div class="mt-5" *ngIf="hasSearched">
     <div class="flex justify-between items-center mb-3 text-[13px] font-semibold">
@@ -52,7 +53,9 @@
         </div>
         <div>
           <label class="field-label" *ngIf="i === 0">Location</label>
-          <input pInputText type="text" placeholder="Address" formControlName="location" class="w-full" />
+          <input pInputText type="text" placeholder="Address" formControlName="location"
+                 class="w-full" appGooglePlacesAutocomplete
+                 (placeSelected)="onLocationSelected($event, i)" />
         </div>
         <div>
           <label class="field-label" *ngIf="i === 0">Phone Number</label>
