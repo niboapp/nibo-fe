@@ -16,9 +16,12 @@ import { StatCardComponent } from './components/stat-card/stat-card.component';
 import { VisitsChartComponent } from './components/visits-chart/visits-chart.component';
 import { DonutChartComponent } from './components/donut-chart/donut-chart.component';
 import { GeoDemandComponent } from './components/geo-demand/geo-demand.component';
+import { OnboardingTrackerComponent } from '../../shared/components/onboarding-tracker/onboarding-tracker.component';
 import { DashboardService } from '../../core/services/dashboard.service';
 import { NigeriaGeoService } from '../../core/services/nigeria-geo.service';
 import { AuthService } from '../../core/services/auth.service';
+import { ProductsService } from '../../core/services/products.service';
+import { RetailersService } from '../../core/services/retailers.service';
 import { orgCompleteness } from '../../core/services/profile.service';
 import {
   StatMetric, VisitPoint, StateVisit, DemandGapRow,
@@ -30,7 +33,8 @@ import {
   imports: [
     CommonModule, FormsModule, RouterLink,
     SelectModule, ButtonModule, TableModule, ProgressBarModule, SkeletonModule,
-    PageHeaderComponent, StatCardComponent, VisitsChartComponent, DonutChartComponent, GeoDemandComponent
+    PageHeaderComponent, StatCardComponent, VisitsChartComponent, DonutChartComponent, GeoDemandComponent,
+    OnboardingTrackerComponent
   ],
   templateUrl: './dashboard.component.html'
 })
@@ -59,17 +63,25 @@ export class DashboardComponent implements OnInit {
   stateOptions = ['All States'];
   lgaOptions = ['LGA'];
 
-  profileCompleteness = 100;
+  profileCompleteness = 0;
+  productsCount = 0;
+  retailersCount = 0;
+
+  get currentUser() {
+    return this.authService.currentUser();
+  }
 
   constructor(
     private dashboardService: DashboardService,
     private nigeriaGeo: NigeriaGeoService,
     private authService: AuthService,
+    private productsService: ProductsService,
+    private retailersService: RetailersService,
     private messageService: MessageService
   ) {}
 
   ngOnInit(): void {
-    this.profileCompleteness = orgCompleteness(this.authService.currentUser()?.organization);
+    this.refreshTrackerData();
 
     this.nigeriaGeo.getStateNames().subscribe(names => {
       this.stateOptions = ['All States', ...names];
@@ -130,5 +142,23 @@ export class DashboardComponent implements OnInit {
 
   exportData(): void {
     // TODO(backend): trigger export endpoint / CSV generation
+  }
+
+  refreshTrackerData(): void {
+    forkJoin({
+      products: this.productsService.getProducts({ limit: 1 }),
+      retailers: this.retailersService.getRetailers({ limit: 1 })
+    }).subscribe({
+      next: ({ products, retailers }) => {
+        this.productsCount = products.total;
+        this.retailersCount = retailers.total;
+        this.profileCompleteness = orgCompleteness(
+          this.authService.currentUser()?.organization,
+          this.productsCount,
+          this.retailersCount
+        );
+      },
+      error: () => {}
+    });
   }
 }

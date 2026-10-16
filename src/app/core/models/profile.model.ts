@@ -1,3 +1,5 @@
+import { BuyingOptions } from './auth.model';
+
 export interface BusinessProfile {
   name: string;
   handle: string;
@@ -16,4 +18,5 @@ export interface BusinessProfile {
   productCategories: string[];
   profileCompletenessPercent: number;
   completenessHint: string;
+  buyingOptions?: BuyingOptions;
 }

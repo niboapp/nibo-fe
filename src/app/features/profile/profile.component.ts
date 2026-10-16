@@ -13,10 +13,16 @@ import { BusinessProfile } from '../../core/models/profile.model';
 import { ProfileService } from '../../core/services/profile.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ChangePasswordModalComponent } from './components/change-password-modal/change-password-modal.component';
+import { OnboardingTrackerComponent } from '../../shared/components/onboarding-tracker/onboarding-tracker.component';
+import { BuyingOptionsModalComponent } from '../../shared/components/buying-options-modal/buying-options-modal.component';
 
 @Component({
   selector: 'app-profile',
-  imports: [CommonModule, FormsModule, InputTextModule, ButtonModule, ProgressBarModule, ChipsModule, TagModule, SkeletonModule, ChangePasswordModalComponent],
+  imports: [
+    CommonModule, FormsModule, InputTextModule, ButtonModule, ProgressBarModule,
+    ChipsModule, TagModule, SkeletonModule, ChangePasswordModalComponent,
+    OnboardingTrackerComponent, BuyingOptionsModalComponent
+  ],
   templateUrl: './profile.component.html'
 })
 export class ProfileComponent implements OnInit {
@@ -26,6 +32,11 @@ export class ProfileComponent implements OnInit {
   saving = false;
   loading = true;
   showPasswordModal = false;
+  showBuyingOptionsModal = false;
+
+  get currentUser() {
+    return this.authService.currentUser();
+  }
 
   constructor(
     private profileService: ProfileService,
@@ -35,6 +46,10 @@ export class ProfileComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.loadProfile();
+  }
+
+  loadProfile(): void {
     this.profileService.getProfile().subscribe({
       next: (data) => {
         this.profile = data;
@@ -91,7 +106,18 @@ export class ProfileComponent implements OnInit {
     this.router.navigate(['/login']);
   }
 
+  onBuyingOptionsSaved(): void {
+    this.loadProfile();
+  }
+
   copyToClipboard(value: string): void {
-    navigator.clipboard?.writeText(value);
+    if (value && typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(value);
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Copied',
+        detail: 'Link copied to clipboard!'
+      });
+    }
   }
 }

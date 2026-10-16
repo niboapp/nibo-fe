@@ -19,9 +19,7 @@ import { AuthService } from '../../../core/services/auth.service';
 
 export class AddBusinessComponent implements OnInit {
   form: FormGroup;
-  availableCategories: string[] = [];
   industries: string[] = [];
-  selectedCategories: string[] = [];
   logoPreviewUrl: string | null = null;
   selectedLogo: File | null = null;
   loading = false;
@@ -42,7 +40,6 @@ export class AddBusinessComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.onboardingService.getAvailableCategories().subscribe(c => (this.availableCategories = c));
     this.onboardingService.getIndustries().subscribe(i => (this.industries = i));
 
     // prefill whatever the organization already has (reopened via completeness CTA)
@@ -54,19 +51,8 @@ export class AddBusinessComponent implements OnInit {
         location: org.business_address ?? '',
         industry: org.industry ?? '',
       });
-      this.selectedCategories = org.product_categories ?? [];
       this.logoPreviewUrl = org.business_logo || null;
     }
-  }
-
-  toggleCategory(category: string): void {
-    this.selectedCategories = this.selectedCategories.includes(category)
-      ? this.selectedCategories.filter(c => c !== category)
-      : [...this.selectedCategories, category];
-  }
-
-  isSelected(category: string): boolean {
-    return this.selectedCategories.includes(category);
   }
 
   onLogoSelected(event: Event): void {
@@ -80,20 +66,23 @@ export class AddBusinessComponent implements OnInit {
     }
   }
 
-  cancel(): void {
-    this.router.navigate(['/app/overview']);
-  }
-
   submit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
-    const payload = { ...this.form.value, categories: this.selectedCategories };
+    const payload = { ...this.form.value };
     // logoPreviewUrl already holds the image as a base64 data URL — sent as business_logo
     this.loading = true;
     this.onboardingService.submitBusiness(payload, this.logoPreviewUrl).subscribe({
-      next: () => this.router.navigate(['/app/overview']),
+      next: () => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Business Profile Created',
+          detail: 'Great! Next, complete your products, retailers, and buying options to unlock your store link.'
+        });
+        this.router.navigate(['/app/overview']);
+      },
       error: (err) => {
         this.loading = false;
         this.messageService.add({

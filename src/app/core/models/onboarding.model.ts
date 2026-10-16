@@ -3,5 +3,5 @@ export interface BusinessOnboarding {
   storeName: string;
   location: string;
   industry: string;
-  categories: string[];
+  categories?: string[];
 }

@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map, of, tap, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { ApiResponse, Organization } from '../models/auth.model';
+import { ApiResponse, BuyingOptions, Organization } from '../models/auth.model';
 import { BusinessOnboarding } from '../models/onboarding.model';
 import { AuthService } from './auth.service';
 
@@ -36,14 +36,16 @@ export class OnboardingService {
       return throwError(() => new Error('No organization found for this account'));
     }
 
-    const body = {
+    const body: Record<string, any> = {
       name: payload.businessName,
       store_name: payload.storeName,
       business_address: payload.location,
       industry: payload.industry,
-      product_categories: payload.categories,
       business_logo: logoDataUrl ?? '',
     };
+    if (payload.categories && payload.categories.length) {
+      body['product_categories'] = payload.categories;
+    }
 
     return this.http
       .put<ApiResponse<Organization>>(`${environment.apiUrl}/v1/organizations/${orgId}`, body)
@@ -51,6 +53,32 @@ export class OnboardingService {
         map(res => {
           if (!res.success || !res.data) {
             throw new Error(res.message || 'Unable to save business');
+          }
+          return res.data;
+        }),
+        tap(org => this.authService.updateOrganization(org))
+      );
+  }
+
+  updateBuyingOptions(options: BuyingOptions): Observable<Organization> {
+    const orgId = this.authService.currentUser()?.organization?._id
+      ?? this.authService.currentUser()?.organization_id;
+    if (!orgId) {
+      return throwError(() => new Error('No organization found for this account'));
+    }
+
+    const body: Record<string, any> = {
+      buying_options: options,
+      phone_number: options.whatsapp_number,
+      business_url: options.company_website
+    };
+
+    return this.http
+      .put<ApiResponse<Organization>>(`${environment.apiUrl}/v1/organizations/${orgId}`, body)
+      .pipe(
+        map(res => {
+          if (!res.success || !res.data) {
+            throw new Error(res.message || 'Unable to save buying options');
           }
           return res.data;
         }),

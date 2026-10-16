@@ -1,3 +1,14 @@
+export interface EcommerceStore {
+  platform: string;
+  url: string;
+}
+
+export interface BuyingOptions {
+  whatsapp_number?: string;
+  company_website?: string;
+  ecommerce_stores?: EcommerceStore[];
+}
+
 export interface Organization {
   _id: string;
   name?: string;
@@ -15,6 +26,7 @@ export interface Organization {
   created_at?: string;
   status?: string;
   is_verified?: boolean;
+  buying_options?: BuyingOptions;
 }
 
 export interface AuthUser {
