@@ -94,7 +94,11 @@ export class AddRetailerComponent implements AfterViewInit {
     return this.fb.group({
       name: ['', Validators.required],
       location: ['', Validators.required],
-      phoneNumber: ['', Validators.required]
+      landmark: [''],
+      phoneNumber: ['', [
+        Validators.required,
+        Validators.pattern(/^(070|071|080|081|090|091)\d{8}$/)
+      ]]
     });
   }
 
@@ -170,7 +174,43 @@ export class AddRetailerComponent implements AfterViewInit {
     const row = this.rows.at(index);
     if (row && place.formatted_address) {
       row.patchValue({ location: place.formatted_address });
+      row.get('location')?.markAsDirty();
+      row.get('location')?.updateValueAndValidity();
     }
+  }
+
+  isRowFieldInvalid(index: number, field: string): boolean {
+    const control = this.rows.at(index)?.get(field);
+    return !!(control && control.invalid && (control.touched || control.dirty));
+  }
+
+  getRowFieldError(index: number, field: string): string | null {
+    const control = this.rows.at(index)?.get(field);
+    if (!control || !control.invalid || !(control.touched || control.dirty)) {
+      return null;
+    }
+    if (control.errors?.['required']) {
+      return 'Required';
+    }
+    if (field === 'phoneNumber' && control.errors?.['pattern']) {
+      return '11 digits (081...)';
+    }
+    return 'Invalid';
+  }
+
+  get isFormValid(): boolean {
+    const hasChainSelections = this.selectedResultIds.size > 0;
+    const manualValid = this.manualForm.valid;
+
+    if (hasChainSelections) {
+      const hasAnyManualInput = this.rows.controls.some(row => {
+        const val = row.value;
+        return !!(val.name?.trim() || val.location?.trim() || val.phoneNumber?.trim() || val.landmark?.trim());
+      });
+      return hasAnyManualInput ? manualValid : true;
+    }
+
+    return manualValid;
   }
 
   goBack(): void {
@@ -178,14 +218,31 @@ export class AddRetailerComponent implements AfterViewInit {
   }
 
   saveRetailers(): void {
+    if (!this.isFormValid) {
+      this.manualForm.markAllAsTouched();
+      return;
+    }
+
     const manualRowsValid = this.manualForm.valid;
-    const manualRows = manualRowsValid ? (this.rows.value as { name: string; location: string; phoneNumber: string }[]) : [];
+    const manualRows = manualRowsValid
+      ? (this.rows.value as { name: string; location: string; phoneNumber: string; landmark?: string }[])
+      : [];
 
     const selectedChainRows = this.searchResults
       .filter(r => this.selectedResultIds.has(r.id))
-      .map(r => ({ name: r.name, location: r.address, phoneNumber: '' }));
+      .map(r => ({ name: r.name, location: r.address, phoneNumber: '', landmark: '' }));
 
-    const rowsToSave = [...selectedChainRows, ...manualRows.filter(r => r.name || r.location || r.phoneNumber)];
+    const rowsToSave = [
+      ...selectedChainRows,
+      ...manualRows
+        .filter(r => r.name || r.location || r.phoneNumber)
+        .map(r => ({
+          name: r.name.trim(),
+          location: r.location.trim(),
+          phoneNumber: r.phoneNumber.trim(),
+          landmark: r.landmark?.trim() || undefined
+        }))
+    ];
 
     if (!rowsToSave.length) {
       this.manualForm.markAllAsTouched();

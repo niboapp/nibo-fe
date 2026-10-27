@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -23,6 +23,12 @@ import { Product } from '../../../core/models/product.model';
   templateUrl: './add-product.component.html'
 })
 export class AddProductComponent implements OnInit {
+  private fb = inject(FormBuilder);
+  private productsService = inject(ProductsService);
+  private messageService = inject(MessageService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+
   form: FormGroup;
   imagePreviewUrl: string | null = null;
   selectedFile: File | null = null;
@@ -34,20 +40,14 @@ export class AddProductComponent implements OnInit {
     return !!this.productId;
   }
 
-  constructor(
-    private fb: FormBuilder,
-    private productsService: ProductsService,
-    private messageService: MessageService,
-    private router: Router,
-    private route: ActivatedRoute
-  ) {
+  constructor() {
     this.form = this.fb.group({
       name: ['', Validators.required],
       description: ['', [Validators.required, Validators.maxLength(300)]],
       retailPrice: [null, [Validators.required, Validators.min(0)]],
       quantity: [1, [Validators.required, Validators.min(1)]],
-      barcode: ['', Validators.required],
-      batchNumber: ['', Validators.required],
+      barcode: ['', [Validators.required, Validators.pattern(/^[0-9]+$/)]],
+      batchNumber: ['', [Validators.required, Validators.pattern(/^[a-zA-Z0-9\-_]+$/)]],
       manufacturingDate: ['', Validators.required],
       expiringDate: ['', Validators.required],
     });
@@ -77,6 +77,31 @@ export class AddProductComponent implements OnInit {
 
   get descriptionLength(): number {
     return (this.form.get('description')?.value || '').length;
+  }
+
+  isInvalid(controlName: string): boolean {
+    const control = this.form.get(controlName);
+    return !!(control && control.invalid && (control.touched || control.dirty));
+  }
+
+  getFieldError(controlName: string): string | null {
+    const control = this.form.get(controlName);
+    if (!control || !control.invalid || !(control.touched || control.dirty)) {
+      return null;
+    }
+    if (control.errors?.['required']) {
+      return 'Required';
+    }
+    if (controlName === 'barcode' && control.errors?.['pattern']) {
+      return 'Numbers only';
+    }
+    if (controlName === 'batchNumber' && control.errors?.['pattern']) {
+      return 'Alphanumeric only';
+    }
+    if (control.errors?.['min']) {
+      return 'Min 1';
+    }
+    return 'Invalid';
   }
 
   onFileSelected(event: Event): void {
