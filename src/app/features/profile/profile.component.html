@@ -229,7 +229,7 @@
           <div *ngIf="!profile.where2buyLink"
             class="p-3 bg-canvas border border-line rounded-lg text-xs text-ink-2 flex items-center gap-2">
             <i class="pi pi-lock text-warning"></i>
-            <span>Locked — Complete all 4 onboarding requirements above to generate your Where to Buy link.</span>
+            <span>Locked: Complete all 4 onboarding requirements above to generate your Where to Buy link.</span>
           </div>
         </div>
       </div>
@@ -245,5 +245,5 @@
 <app-change-password-modal *ngIf="showPasswordModal" (close)="showPasswordModal = false"
   (changed)="onPasswordChanged()" />
 
-<app-buying-options-modal *ngIf="showBuyingOptionsModal" [visible]="showBuyingOptionsModal"
-  [initialOptions]="profile?.buyingOptions" (close)="showBuyingOptionsModal = false" (saved)="onBuyingOptionsSaved()" />
+<app-buying-options-modal *ngIf="showBuyingOptionsModal && profile" [visible]="showBuyingOptionsModal"
+  [initialOptions]="profile.buyingOptions" (close)="showBuyingOptionsModal = false" (saved)="onBuyingOptionsSaved()" />

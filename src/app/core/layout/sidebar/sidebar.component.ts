@@ -1,6 +1,7 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject, computed } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -40,8 +41,8 @@ import { CommonModule } from '@angular/common';
       <div class="border-t border-line pt-4 flex flex-col gap-3">
         <a routerLink="/app/profile"
            class="flex items-center gap-2.5 px-2 py-1.5 rounded-lg no-underline text-ink hover:bg-canvas">
-          <span class="w-8 h-8 rounded-full bg-brand-light text-brand flex items-center justify-center text-xs font-semibold">{{ orgInitials }}</span>
-          <span class="text-sm font-medium">{{ orgName }}</span>
+          <span class="w-8 h-8 rounded-full bg-brand-light text-brand flex items-center justify-center text-xs font-semibold shrink-0">{{ userInitials() }}</span>
+          <span class="text-sm font-medium truncate">{{ userName() }}</span>
         </a>
         <button type="button" (click)="logout.emit()"
                 class="flex items-center gap-2.5 px-2 py-2 text-sm text-ink bg-transparent border-0 cursor-pointer">
@@ -53,8 +54,35 @@ import { CommonModule } from '@angular/common';
   `
 })
 export class SidebarComponent {
-  // In production these come from an AuthService/UserService — not hardcoded
-  @Input() orgName = 'Ola Wale';
-  @Input() orgInitials = 'OW';
+  private authService = inject(AuthService);
+
+  @Input() orgName?: string;
+  @Input() orgInitials?: string;
   @Output() logout = new EventEmitter<void>();
+
+  readonly currentUser = this.authService.currentUser;
+
+  readonly userName = computed(() => {
+    if (this.orgName) return this.orgName;
+    const user = this.currentUser();
+    return user?.full_name?.trim() || user?.email || 'User';
+  });
+
+  readonly userInitials = computed(() => {
+    if (this.orgInitials) return this.orgInitials;
+    const name = this.userName();
+    if (!name || name === 'User') {
+      const user = this.currentUser();
+      if (!user?.full_name && user?.email) {
+        return user.email[0].toUpperCase();
+      }
+      return 'U';
+    }
+    const parts = name.split(/\s+/).filter(Boolean);
+    if (parts.length === 0) return 'U';
+    return parts
+      .slice(0, 2)
+      .map(part => part[0].toUpperCase())
+      .join('');
+  });
 }

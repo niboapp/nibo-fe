@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { SidebarComponent } from '../sidebar/sidebar.component';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-main-layout',
@@ -15,10 +16,11 @@ import { SidebarComponent } from '../sidebar/sidebar.component';
   `
 })
 export class MainLayoutComponent {
-  constructor(private router: Router) {}
+  private authService = inject(AuthService);
+  private router = inject(Router);
 
   onLogout(): void {
-    // TODO(backend): clear session/token via AuthService
+    this.authService.logout();
     this.router.navigate(['/login']);
   }
 }
