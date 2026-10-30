@@ -6,18 +6,19 @@ import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { DatePickerModule } from 'primeng/datepicker';
 import { TextareaModule } from 'primeng/textarea';
+import { SelectModule } from 'primeng/select';
 import { ButtonModule } from 'primeng/button';
 import { SkeletonModule } from 'primeng/skeleton';
 import { MessageService } from 'primeng/api';
 import { PageHeaderComponent } from '../../../core/layout/page-header/page-header.component';
 import { ProductsService } from '../../../core/services/products.service';
-import { Product } from '../../../core/models/product.model';
+import { Product, ProductCategory } from '../../../core/models/product.model';
 
 @Component({
   selector: 'app-add-product',
   imports: [
     CommonModule, ReactiveFormsModule,
-    InputTextModule, InputNumberModule, DatePickerModule, TextareaModule, ButtonModule, SkeletonModule,
+    InputTextModule, InputNumberModule, DatePickerModule, TextareaModule, SelectModule, ButtonModule, SkeletonModule,
     PageHeaderComponent
   ],
   templateUrl: './add-product.component.html'
@@ -30,6 +31,8 @@ export class AddProductComponent implements OnInit {
   private route = inject(ActivatedRoute);
 
   form: FormGroup;
+  categories: ProductCategory[] = [];
+  loadingCategories = true;
   imagePreviewUrl: string | null = null;
   selectedFile: File | null = null;
   loading = false;
@@ -46,6 +49,7 @@ export class AddProductComponent implements OnInit {
       description: ['', [Validators.required, Validators.maxLength(300)]],
       retailPrice: [null, [Validators.required, Validators.min(0)]],
       quantity: [1, [Validators.required, Validators.min(1)]],
+      productCategoryId: ['', Validators.required],
       barcode: ['', [Validators.required, Validators.pattern(/^[0-9]+$/)]],
       batchNumber: ['', [Validators.required, Validators.pattern(/^[a-zA-Z0-9\-_]+$/)]],
       manufacturingDate: ['', Validators.required],
@@ -57,22 +61,55 @@ export class AddProductComponent implements OnInit {
     this.productId = this.route.snapshot.paramMap.get('id');
     if (this.productId) {
       this.fetching = true;
-      this.productsService.getProduct(this.productId).subscribe({
-        next: (product) => {
-          this.form.patchValue(product);
-          this.imagePreviewUrl = product.imageUrl || null;
-          this.fetching = false;
-        },
-        error: (err) => {
-          this.fetching = false;
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Unable to load product',
-            detail: err?.error?.message || 'Something went wrong. Please try again.'
-          });
-        }
-      });
     }
+
+    // categories load first so a legacy product's category name can be
+    // resolved back to its id in edit mode
+    this.productsService.getCategories().subscribe({
+      next: (categories) => {
+        this.categories = categories;
+        this.loadingCategories = false;
+        this.loadProduct();
+      },
+      error: () => {
+        this.loadingCategories = false;
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Unable to load categories',
+          detail: 'Something went wrong. Please try again.'
+        });
+        this.loadProduct();
+      }
+    });
+  }
+
+  private loadProduct(): void {
+    if (!this.productId) {
+      return;
+    }
+
+    this.productsService.getProduct(this.productId).subscribe({
+      next: (product) => {
+        this.form.patchValue(product);
+        // docs written before product_category_id existed only carry the name
+        if (!product.productCategoryId && product.productCategory) {
+          const match = this.categories.find(c => c.name === product.productCategory);
+          if (match) {
+            this.form.patchValue({ productCategoryId: match.id });
+          }
+        }
+        this.imagePreviewUrl = product.imageUrl || null;
+        this.fetching = false;
+      },
+      error: (err) => {
+        this.fetching = false;
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Unable to load product',
+          detail: err?.error?.message || 'Something went wrong. Please try again.'
+        });
+      }
+    });
   }
 
   get descriptionLength(): number {
@@ -127,8 +164,11 @@ export class AddProductComponent implements OnInit {
 
     // the API accepts JSON — the selected image is sent as a base64 data URL
     // (imagePreviewUrl is populated by the FileReader in onFileSelected)
+    const categoryId = this.form.value.productCategoryId;
     const payload: Partial<Product> = {
       ...this.form.value,
+      // persist the display name alongside the category id
+      productCategory: this.categories.find(c => c.id === categoryId)?.name ?? '',
       imageUrl: this.imagePreviewUrl ?? '',
     };
     this.loading = true;

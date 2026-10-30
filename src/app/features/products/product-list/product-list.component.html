@@ -55,6 +55,7 @@
               <th>Product Name</th>
               <th>Image</th>
               <th>Description</th>
+              <th>Category</th>
               <th>Retail Price</th>
               <th>Quantity</th>
               <th>Batch Number</th>
@@ -80,6 +81,10 @@
                 <ng-container *ngIf="!loadingProducts">{{ truncate(product.description, 30) }}</ng-container>
               </td>
               <td>
+                <p-skeleton *ngIf="loadingProducts" width="5rem" height="1rem" />
+                <ng-container *ngIf="!loadingProducts">{{ product.productCategory || '—' }}</ng-container>
+              </td>
+              <td>
                 <p-skeleton *ngIf="loadingProducts" width="4rem" height="1rem" />
                 <ng-container *ngIf="!loadingProducts">₦{{ product.retailPrice | number }}</ng-container>
               </td>
@@ -100,7 +105,7 @@
           </ng-template>
           <ng-template pTemplate="emptymessage">
             <tr>
-              <td colspan="7" class="empty-state-rich">
+              <td colspan="8" class="empty-state-rich">
                 <span class="empty-title">No products yet</span>
                 <span class="empty-hint">Products you add will appear in this list</span>
               </td>

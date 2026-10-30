@@ -8,9 +8,17 @@ export interface Product {
   batchNumber: string;
   barcode?: string;
   category?: string;
+  productCategory?: string;
+  productCategoryId?: string;
   manufacturingDate?: string;
   expiringDate?: string;
   dateAdded?: string;
+}
+
+export interface ProductCategory {
+  id: string;
+  name: string;
+  slug: string;
 }
 
 // ProductRecord mirrors the backend product document (snake_case JSON attrs).
@@ -25,6 +33,8 @@ export interface ProductRecord {
   barcode?: string;
   batch_number?: string;
   category?: string;
+  product_category?: string;
+  product_category_id?: string;
   manufacturing_date?: string;
   expiring_date?: string;
   status?: string;

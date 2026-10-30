@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, delay, map, of } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../models/auth.model';
-import { Product, ProductRecord, ProductsPage } from '../models/product.model';
+import { Product, ProductCategory, ProductRecord, ProductsPage } from '../models/product.model';
 import { ProductPerformanceCard } from '../models/dashboard.model';
 
 export interface ProductStats {
@@ -56,6 +56,14 @@ export class ProductsService {
       );
   }
 
+  // GET /v1/product-categories/ — the route is registered at "/", the
+  // trailing slash is required for mux to match
+  getCategories(): Observable<ProductCategory[]> {
+    return this.http
+      .get<ApiResponse<ProductCategory[]>>(`${environment.apiUrl}/v1/product-categories/`)
+      .pipe(map(res => res.data ?? []));
+  }
+
   getProduct(id: string): Observable<Product> {
     return this.http
       .get<ApiResponse<ProductRecord>>(`${this.baseUrl}/${id}`)
@@ -98,6 +106,9 @@ function toProduct(record: ProductRecord): Product {
     batchNumber: record.batch_number ?? '',
     barcode: record.barcode,
     category: record.category,
+    // product_category is canonical; fall back to legacy category for old docs
+    productCategory: record.product_category || record.category,
+    productCategoryId: record.product_category_id,
     manufacturingDate: record.manufacturing_date,
     expiringDate: record.expiring_date,
     dateAdded: record.created_at,
@@ -115,6 +126,8 @@ function toRecord(product: Partial<Product>): Partial<ProductRecord> {
     barcode: product.barcode,
     batch_number: product.batchNumber,
     category: product.category,
+    product_category: product.productCategory ?? product.category,
+    product_category_id: product.productCategoryId,
     manufacturing_date: product.manufacturingDate,
     expiring_date: product.expiringDate,
   };
