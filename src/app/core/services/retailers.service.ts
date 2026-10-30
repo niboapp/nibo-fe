@@ -11,7 +11,7 @@ export class RetailersService {
   private http = inject(HttpClient);
   private baseUrl = `${environment.apiUrl}/v1/retailers`;
 
-  // GET /v1/retailers — filter keys must match the backend model's json attrs
+  // GET /v1/retailers filter keys must match the backend model's json attrs
   getRetailers(filter: Record<string, string | number> = {}): Observable<RetailersPage> {
     let params = new HttpParams();
     Object.entries(filter).forEach(([key, value]) => {
@@ -35,7 +35,7 @@ export class RetailersService {
       );
   }
 
-  // POST /v1/retailers — the endpoint accepts an array for bulk adds/imports
+  // POST /v1/retailers the endpoint accepts an array for bulk adds/imports
   saveRetailers(rows: { name: string; location: string; phoneNumber: string; landmark?: string }[]): Observable<Retailer[]> {
     const records = rows.map(row => ({
       name: row.name,
@@ -48,7 +48,7 @@ export class RetailersService {
       .pipe(map(res => (res.data ?? []).map(toRetailer)));
   }
 
-  // GET /v1/retailers/stats — total/active/inactive counts
+  // GET /v1/retailers/stats total/active/inactive counts
   getRetailerStats(): Observable<RetailerStats> {
     return this.http
       .get<ApiResponse<RetailerStats>>(`${this.baseUrl}/stats`)
@@ -67,7 +67,7 @@ export class RetailersService {
       .pipe(map(res => toRetailer(res.data ?? {} as RetailerRecord)));
   }
 
-  // PATCH /v1/retailers/{id}/status — status is 'ACTIVE' or 'DEACTIVATED'
+  // PATCH /v1/retailers/{id}/status status is 'ACTIVE' or 'DEACTIVATED'
   updateRetailerStatus(id: string, status: 'ACTIVE' | 'DEACTIVATED'): Observable<Retailer> {
     return this.http
       .patch<ApiResponse<RetailerRecord>>(`${this.baseUrl}/${id}/status`, { status })

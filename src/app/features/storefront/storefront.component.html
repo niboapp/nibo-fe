@@ -1,0 +1,448 @@
+<!-- Minimal Storefront Top Bar Navigation -->
+<header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-line">
+  <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between gap-6">
+    <!-- Left: Logo & Direct Store Context -->
+    <div class="flex items-center gap-6">
+      <a class="flex items-center gap-1.5 text-ink group" routerLink="/">
+        <span class="text-xl font-extrabold tracking-tighter">NIBO</span>
+        <span class="w-1.5 h-1.5 rounded-full bg-brand"></span>
+      </a>
+      <div class="hidden sm:flex items-center gap-2 pl-4 border-l border-line text-xs text-ink-2">
+        <span>Storefront</span>
+        <span class="text-ink-3">/</span>
+        <span class="font-medium text-ink">{{ username() }}</span>
+      </div>
+    </div>
+
+    <!-- Center Minimal Nav -->
+    <nav class="hidden md:flex items-center gap-8 text-sm">
+      <a class="text-ink-2 hover:text-ink transition-colors" routerLink="/login">Discover</a>
+      <a class="text-brand font-semibold transition-colors" href="javascript:void(0)">Storefronts</a>
+    </nav>
+  </div>
+</header>
+
+<main class="w-full pb-16">
+  @if (isLoadingOrg()) {
+  <!-- Loading skeleton for Header -->
+  <section class="border-b border-line bg-surface">
+    <div class="max-w-7xl mx-auto px-6 pt-12 pb-10">
+      <div class="flex items-center gap-4 mb-5">
+        <p-skeleton width="140px" height="24px" borderRadius="16px"></p-skeleton>
+        <p-skeleton width="100px" height="18px"></p-skeleton>
+      </div>
+      <div class="max-w-2xl space-y-3">
+        <p-skeleton width="320px" height="36px"></p-skeleton>
+        <p-skeleton width="100%" height="20px"></p-skeleton>
+        <p-skeleton width="80%" height="20px"></p-skeleton>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-8 mt-8 border-t border-line">
+        <p-skeleton height="38px"></p-skeleton>
+        <p-skeleton height="38px"></p-skeleton>
+        <p-skeleton height="38px"></p-skeleton>
+        <p-skeleton height="38px"></p-skeleton>
+      </div>
+    </div>
+  </section>
+  } @else if (orgError()) {
+  <!-- Error / Store Not Found State -->
+  <section class="border-b border-line bg-surface py-20 text-center">
+    <div class="max-w-md mx-auto px-6">
+      <div class="w-16 h-16 rounded-full bg-brand-light text-brand flex items-center justify-center mx-auto mb-4">
+        <span class="material-symbols-outlined text-3xl">storefront</span>
+      </div>
+      <h1 class="text-2xl font-bold text-ink mb-2">Storefront Not Found</h1>
+      <p class="text-sm text-ink-2 mb-6">
+        The requested store "&#64;{{ username() }}" could not be found or is currently unavailable.
+      </p>
+      <a routerLink="/"
+        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-brand text-white text-xs font-semibold hover:bg-brand-hover transition-colors">
+        Return to NIBO
+      </a>
+    </div>
+  </section>
+  } @else {
+  <!-- Hero / Personalized Boutique Store Identity -->
+  <section class="border-b border-line bg-surface">
+    <div class="max-w-7xl mx-auto px-6 pt-12 pb-10">
+      <!-- Trust Label & CAC -->
+      <div class="flex flex-wrap items-center justify-between gap-4 mb-5">
+        <div
+          class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-success text-xs font-semibold tracking-wide">
+          <span class="material-symbols-outlined text-sm font-bold">verified</span>
+          <span>NIBO Verified Business</span>
+        </div>
+      </div>
+
+      <!-- Store Name & Core Header -->
+      <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
+        <div class="max-w-2xl">
+          <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-ink mb-3">
+            {{ organization()?.store_name || organization()?.name || username() }}
+          </h1>
+          <p class="text-base text-ink-2 leading-relaxed font-normal">
+            Specializing in verified pantry staples, authentic confectionery, and household essentials directly
+            authenticated from FMCG manufacturers.
+          </p>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="flex flex-wrap items-center gap-2.5 shrink-0">
+          <button type="button"
+            class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-white text-xs font-semibold shadow-sm bg-brand hover:bg-brand-hover transition-colors">
+            <span class="material-symbols-outlined text-sm">rate_review</span>
+            <span>Write a Verified Review</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Subtle Store Metadata Strip -->
+      <!-- <div class="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-8 mt-8 border-t border-line text-xs">
+        <div>
+          <span class="block text-ink-2 mb-0.5">Authenticity Record</span>
+          <span class="font-semibold text-ink flex items-center gap-1">
+            <span class="text-success">99.4% Verified</span> (Tier AAA)
+          </span>
+        </div>
+        <div>
+          <span class="block text-ink-2 mb-0.5">Active Catalog</span>
+          <span class="font-semibold text-ink">{{ allProducts().length }} Authenticated SKUs</span>
+        </div>
+        <div>
+          <span class="block text-ink-2 mb-0.5">Last Physical Audit</span>
+          <span class="font-semibold text-ink">Today, verified</span>
+        </div>
+        <div>
+          <span class="block text-ink-2 mb-0.5">Counterfeit Incident Risk</span>
+          <span class="font-semibold text-success">Zero Registered Complaints</span>
+        </div>
+      </div> -->
+    </div>
+  </section>
+
+  <!-- Product Discovery & Clean In-Store Shelves -->
+  <section class="max-w-7xl mx-auto px-6 py-10">
+    <!-- Clean Minimal Filter & Search Bar -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+      <!-- Categories -->
+      <div class="flex items-center gap-2 overflow-x-auto pb-1 max-w-2xl">
+        @for (cat of categories(); track cat) {
+        <button type="button" (click)="setCategory(cat)"
+          class="px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors"
+          [ngClass]="selectedCategory() === cat ? 'bg-brand text-white shadow-sm' : 'text-ink-2 hover:text-ink border border-transparent hover:border-line bg-surface'">
+          {{ cat === 'All' ? 'All Products (' + allProducts().length + ')' : cat }}
+        </button>
+        }
+      </div>
+
+      <!-- In-Store Search -->
+      <div class="relative w-full md:w-72">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-ink-3">
+          <span class="material-symbols-outlined text-sm">search</span>
+        </div>
+        <input type="text" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)"
+          placeholder="Search in store..."
+          class="w-full pl-8 pr-3 py-1.5 bg-surface border border-line rounded-lg text-xs placeholder:text-ink-3 focus:outline-none focus:border-brand transition-colors" />
+      </div>
+    </div>
+
+    <!-- Filter Chips & Sorting Row -->
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-6 pb-4 border-b border-line text-xs">
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="text-ink-2 font-medium mr-1 flex items-center gap-1">
+          <span class="material-symbols-outlined text-[15px]">tune</span> Filter:
+        </span>
+        <button type="button" (click)="toggleInStock()"
+          class="px-2.5 py-1 rounded-full border transition-colors flex items-center gap-1 font-medium"
+          [ngClass]="inStockOnly() ? 'border-brand bg-brand-light text-brand font-semibold' : 'border-line bg-surface text-ink hover:border-ink-3'">
+          @if (inStockOnly()) {
+          <span class="material-symbols-outlined text-[13px]">check</span>
+          }
+          In Stock
+        </button>
+        <button type="button" (click)="toggleNafdac()"
+          class="px-2.5 py-1 rounded-full border transition-colors flex items-center gap-1 font-medium"
+          [ngClass]="nafdacOnly() ? 'border-brand bg-brand-light text-brand font-semibold' : 'border-line bg-surface text-ink hover:border-ink-3'">
+          <span class="material-symbols-outlined text-[13px] text-success">verified</span>
+          NAFDAC Certified
+        </button>
+        <span
+          class="px-2.5 py-1 rounded-full border border-line bg-surface text-ink font-medium hidden sm:inline-flex items-center">
+          Direct FMCG Manufacturer
+        </span>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <span class="text-ink-2 font-medium whitespace-nowrap">Sort by:</span>
+        <div class="relative">
+          <select [ngModel]="selectedSort()" (ngModelChange)="selectedSort.set($event)"
+            class="appearance-none bg-surface border border-line text-xs font-semibold text-ink rounded-lg pl-3 pr-8 py-1.5 focus:outline-none cursor-pointer">
+            <option value="highest_rated">Highest Rated (Store Top)</option>
+            <option value="newest">Newest Batch Arrival</option>
+            <option value="price_low">Price: Low to High</option>
+            <option value="price_high">Price: High to Low</option>
+          </select>
+          <span
+            class="material-symbols-outlined text-[14px] text-ink-2 absolute right-2.5 top-2 pointer-events-none">expand_more</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Curated Product Grid -->
+    @if (isLoadingProducts()) {
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      @for (n of [1, 2, 3, 4]; track n) {
+      <div class="bg-surface rounded-xl border border-line p-4 space-y-3">
+        <p-skeleton width="100%" height="160px" borderRadius="8px"></p-skeleton>
+        <p-skeleton width="70%" height="20px"></p-skeleton>
+        <p-skeleton width="100%" height="14px"></p-skeleton>
+        <p-skeleton width="40%" height="22px"></p-skeleton>
+      </div>
+      }
+    </div>
+    } @else if (filteredProducts().length === 0) {
+    <div class="empty-state-rich py-16 card">
+      <span class="empty-title">No products match your search or filter</span>
+      <span class="empty-hint">Try adjusting your category selection or clear search keywords to view available
+        authenticated items.</span>
+    </div>
+    } @else {
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      @for (product of filteredProducts(); track product.id) {
+      <article
+        class="bg-surface rounded-xl border border-line overflow-hidden flex flex-col justify-between group hover:border-ink-3 transition-all duration-300">
+        <div>
+          <!-- Image Area -->
+          <div class="relative w-full aspect-[4/3] bg-stone-50 overflow-hidden flex items-center justify-center">
+            @if (product.imageUrl) {
+            <img [src]="product.imageUrl" [alt]="product.name"
+              class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500" />
+            } @else {
+            <div class="w-full h-full flex items-center justify-center text-ink-3 bg-stone-100">
+              <span class="material-symbols-outlined text-4xl">inventory_2</span>
+            </div>
+            }
+          </div>
+
+          <!-- Card Content -->
+          <div class="p-4">
+            <div class="flex items-center justify-between text-xs mb-2">
+              <span
+                class="inline-flex items-center gap-1 text-[11px] font-semibold text-success bg-emerald-50 px-2 py-0.5 rounded">
+                <span class="material-symbols-outlined text-[12px]">verified</span> 100% Genuine
+              </span>
+              <span class="flex items-center gap-1 text-[11px] font-medium text-ink">
+                <span class="material-symbols-outlined text-[13px] text-amber-500">star</span> 4.9
+              </span>
+            </div>
+            <h2 class="text-sm font-bold text-ink line-clamp-1 group-hover:text-brand transition-colors"
+              [title]="product.name">
+              {{ product.name }}
+            </h2>
+            <p class="text-xs text-ink-2 mt-1 line-clamp-2 leading-relaxed">
+              {{ product.description || 'Manufacturer sealed and authentic point-of-sale verified stock on NIBO
+              network.' }}
+            </p>
+            <div class="mt-3 flex items-baseline justify-between">
+              <span class="text-base font-extrabold text-ink">{{ formatPrice(product.retailPrice) }}</span>
+              @if (product.batchNumber) {
+              <span class="text-[11px] font-mono text-ink-3">Batch #{{ product.batchNumber }}</span>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Actions -->
+        <div class="px-4 pb-4 pt-1 border-t border-line/60 flex items-center justify-between gap-2 mt-2">
+          <button type="button"
+            class="py-2 px-2 text-[11px] font-semibold text-brand hover:text-brand-hover transition-colors flex items-center gap-0.5"
+            title="Find authenticated retailers for this product">
+            <span>Where to buy</span>
+            <span class="material-symbols-outlined text-[13px]">arrow_forward</span>
+          </button>
+        </div>
+      </article>
+      }
+    </div>
+    }
+
+    <!-- Clean Store Location & Transparency Reviews Section -->
+    <section class="mt-16 pt-12 border-t border-line">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8">
+        <div class="max-w-xl">
+          <h2 class="text-2xl font-bold tracking-tight text-ink">Verified Customer Reviews</h2>
+          <p class="text-xs text-ink-2 mt-1 leading-relaxed">
+            All reviews require a scanned NIBO packaging QR code or confirmed point-of-sale receipt verification.
+          </p>
+        </div>
+        <div class="flex items-center gap-3 shrink-0">
+          <button type="button"
+            class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-white text-xs font-semibold shadow-sm bg-brand hover:bg-brand-hover transition-colors">
+            <span class="material-symbols-outlined text-sm">rate_review</span>
+            <span>Write a Verified Review</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <!-- Rating Breakdown Card -->
+        <div class="lg:col-span-4 bg-surface border border-line rounded-xl p-6 shadow-sm">
+          <div class="flex items-baseline gap-3 mb-2">
+            <span class="text-4xl font-extrabold text-ink tracking-tight">4.9</span>
+            <div class="flex flex-col">
+              <div class="flex items-center text-amber-500">
+                <span class="material-symbols-outlined text-base">star</span>
+                <span class="material-symbols-outlined text-base">star</span>
+                <span class="material-symbols-outlined text-base">star</span>
+                <span class="material-symbols-outlined text-base">star</span>
+                <span class="material-symbols-outlined text-base">star</span>
+              </div>
+              <span class="text-[11px] text-ink-2 mt-0.5">Based on 285 authenticated buyer audits</span>
+            </div>
+          </div>
+
+          <div class="mt-6 space-y-3.5 border-t border-line pt-5 text-xs">
+            <div>
+              <div class="flex justify-between text-ink-2 mb-1 font-medium">
+                <span>Packaging &amp; Tamper Seals</span>
+                <span class="text-ink font-bold">99.8%</span>
+              </div>
+              <div class="w-full h-1.5 bg-stone-100 rounded-full overflow-hidden">
+                <div class="h-full rounded-full bg-brand" style="width: 99.8%;"></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between text-ink-2 mb-1 font-medium">
+                <span>Product Authenticity Verification</span>
+                <span class="text-ink font-bold">100%</span>
+              </div>
+              <div class="w-full h-1.5 bg-stone-100 rounded-full overflow-hidden">
+                <div class="h-full bg-success rounded-full" style="width: 100%;"></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between text-ink-2 mb-1 font-medium">
+                <span>Batch Freshness &amp; Expiry Distance</span>
+                <span class="text-ink font-bold">98.4%</span>
+              </div>
+              <div class="w-full h-1.5 bg-stone-100 rounded-full overflow-hidden">
+                <div class="h-full rounded-full bg-brand" style="width: 98.4%;"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-6 pt-4 border-t border-line flex items-center justify-between text-[11px] text-ink-2">
+            <span class="flex items-center gap-1">
+              <span class="material-symbols-outlined text-[13px] text-success">verified_user</span>
+              Counterfeit Zero Tolerance
+            </span>
+            <span class="font-medium text-ink">100% Guaranteed</span>
+          </div>
+        </div>
+
+        <!-- Customer Testimonials -->
+        <div class="lg:col-span-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div
+            class="bg-surface border border-line rounded-xl p-5 flex flex-col justify-between hover:border-ink-3 transition-colors shadow-sm">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center text-amber-500">
+                  <span class="material-symbols-outlined text-[14px]">star</span>
+                  <span class="material-symbols-outlined text-[14px]">star</span>
+                  <span class="material-symbols-outlined text-[14px]">star</span>
+                  <span class="material-symbols-outlined text-[14px]">star</span>
+                  <span class="material-symbols-outlined text-[14px]">star</span>
+                </div>
+                <span class="text-[11px] text-ink-2">2 days ago</span>
+              </div>
+              <div
+                class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-50 text-success text-[10px] font-semibold mb-3">
+                <span class="material-symbols-outlined text-[11px]">check_circle</span> Verified FMCG Purchase
+              </div>
+              <p class="text-xs text-ink leading-relaxed mb-4">
+                "Scanned the product batch QR code on arrival. Manufacturer seal and laser timestamp matched 100%.
+                Genuine quality peace of mind."
+              </p>
+            </div>
+            <div class="border-t border-line/80 pt-3 text-[11px]">
+              <span class="font-bold text-ink block">Babajide O.</span>
+              <span class="text-ink-2 font-mono text-[10px]">Batch Verified</span>
+            </div>
+          </div>
+
+          <div
+            class="bg-surface border border-line rounded-xl p-5 flex flex-col justify-between hover:border-ink-3 transition-colors shadow-sm">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center text-amber-500">
+                  <span class="material-symbols-outlined text-[14px]">star</span>
+                  <span class="material-symbols-outlined text-[14px]">star</span>
+                  <span class="material-symbols-outlined text-[14px]">star</span>
+                  <span class="material-symbols-outlined text-[14px]">star</span>
+                  <span class="material-symbols-outlined text-[14px]">star</span>
+                </div>
+                <span class="text-[11px] text-ink-2">5 days ago</span>
+              </div>
+              <div
+                class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-50 text-success text-[10px] font-semibold mb-3">
+                <span class="material-symbols-outlined text-[11px]">check_circle</span> Verified FMCG Purchase
+              </div>
+              <p class="text-xs text-ink leading-relaxed mb-4">
+                "Tamper-evident seals intact directly from the verified hub. No duplicate or stale batches like open
+                markets."
+              </p>
+            </div>
+            <div class="border-t border-line/80 pt-3 text-[11px]">
+              <span class="font-bold text-ink block">Amina K.</span>
+              <span class="text-ink-2 font-mono text-[10px]">Tamper Seal Verified</span>
+            </div>
+          </div>
+
+          <div
+            class="bg-surface border border-line rounded-xl p-5 flex flex-col justify-between hover:border-ink-3 transition-colors shadow-sm">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center text-amber-500">
+                  <span class="material-symbols-outlined text-[14px]">star</span>
+                  <span class="material-symbols-outlined text-[14px]">star</span>
+                  <span class="material-symbols-outlined text-[14px]">star</span>
+                  <span class="material-symbols-outlined text-[14px]">star</span>
+                  <span class="material-symbols-outlined text-[14px]">star</span>
+                </div>
+                <span class="text-[11px] text-ink-2">1 week ago</span>
+              </div>
+              <div
+                class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-50 text-success text-[10px] font-semibold mb-3">
+                <span class="material-symbols-outlined text-[11px]">check_circle</span> Verified FMCG Purchase
+              </div>
+              <p class="text-xs text-ink leading-relaxed mb-4">
+                "Serial number registered immediately on the NIBO network. Seamless authentic verification experience."
+              </p>
+            </div>
+            <div class="border-t border-line/80 pt-3 text-[11px]">
+              <span class="font-bold text-ink block">Emeka N.</span>
+              <span class="text-ink-2 font-mono text-[10px]">Serial Registered</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+  }
+</main>
+
+<!-- Clean Editorial Footer -->
+<footer class="w-full bg-surface border-t border-line py-8">
+  <div class="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-ink-2">
+    <div class="flex items-center gap-2">
+      <span class="font-extrabold text-ink tracking-tight">NIBO</span>
+      <span>•</span>
+      <span>Storefront Registry</span>
+    </div>
+    <div class="flex items-center gap-6">
+      <span>© 2025 NIBO Network Inc. All rights reserved.</span>
+    </div>
+  </div>
+</footer>

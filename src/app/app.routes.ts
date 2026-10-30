@@ -4,7 +4,6 @@ import { MainLayoutComponent } from './core/layout/main-layout/main-layout.compo
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   {
-    // No sidebar — standalone auth/onboarding screens
     path: 'login',
     loadComponent: () =>
       import('./features/auth/login/login.component').then(m => m.LoginComponent)
@@ -70,6 +69,11 @@ export const routes: Routes = [
     path: 'add-business',
     loadComponent: () =>
       import('./features/onboarding/add-business/add-business.component').then(m => m.AddBusinessComponent)
+  },
+  {
+    path: 'where2buy/:username',
+    loadComponent: () =>
+      import('./features/storefront/storefront.component').then(m => m.StorefrontComponent)
   },
   { path: '**', redirectTo: 'login' }
 ];
